@@ -1,0 +1,606 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2404F9D62D040EE00020CC4C /* ApologistApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9D52D040EE00020CC4C /* ApologistApp.swift */; };
+		2404F9D82D040EE00020CC4C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9D72D040EE00020CC4C /* ContentView.swift */; };
+		2404F9DA2D040EE20020CC4C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2404F9D92D040EE20020CC4C /* Assets.xcassets */; };
+		2404F9DD2D040EE20020CC4C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2404F9DC2D040EE20020CC4C /* Preview Assets.xcassets */; };
+		2404F9E72D040EE30020CC4C /* ApologistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9E62D040EE30020CC4C /* ApologistTests.swift */; };
+		2404F9F12D040EE30020CC4C /* ApologistUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9F02D040EE30020CC4C /* ApologistUITests.swift */; };
+		2404F9F32D040EE30020CC4C /* ApologistUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9F22D040EE30020CC4C /* ApologistUITestsLaunchTests.swift */; };
+		2404FA002D0413630020CC4C /* LandingScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404F9FF2D0413630020CC4C /* LandingScreenView.swift */; };
+		2404FA022D0413870020CC4C /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA012D0413870020CC4C /* MainAppView.swift */; };
+		2404FA042D0413A10020CC4C /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA032D0413A10020CC4C /* QuestionView.swift */; };
+		2404FA062D04E8CA0020CC4C /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA052D04E8CA0020CC4C /* ComingSoonView.swift */; };
+		2404FA082D0553850020CC4C /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA072D0553850020CC4C /* HomePageView.swift */; };
+		2404FA0A2D0684500020CC4C /* ClaudeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA092D0684500020CC4C /* ClaudeAPI.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2404F9E32D040EE30020CC4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2404F9CA2D040EE00020CC4C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2404F9D12D040EE00020CC4C;
+			remoteInfo = Apologist;
+		};
+		2404F9ED2D040EE30020CC4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2404F9CA2D040EE00020CC4C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2404F9D12D040EE00020CC4C;
+			remoteInfo = Apologist;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2404F9D22D040EE00020CC4C /* Apologist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Apologist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2404F9D52D040EE00020CC4C /* ApologistApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApologistApp.swift; sourceTree = "<group>"; };
+		2404F9D72D040EE00020CC4C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		2404F9D92D040EE20020CC4C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2404F9DC2D040EE20020CC4C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		2404F9E22D040EE30020CC4C /* ApologistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApologistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2404F9E62D040EE30020CC4C /* ApologistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApologistTests.swift; sourceTree = "<group>"; };
+		2404F9EC2D040EE30020CC4C /* ApologistUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApologistUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2404F9F02D040EE30020CC4C /* ApologistUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApologistUITests.swift; sourceTree = "<group>"; };
+		2404F9F22D040EE30020CC4C /* ApologistUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApologistUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		2404F9FF2D0413630020CC4C /* LandingScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingScreenView.swift; sourceTree = "<group>"; };
+		2404FA012D0413870020CC4C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		2404FA032D0413A10020CC4C /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
+		2404FA052D04E8CA0020CC4C /* ComingSoonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
+		2404FA072D0553850020CC4C /* HomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageView.swift; sourceTree = "<group>"; };
+		2404FA092D0684500020CC4C /* ClaudeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAPI.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2404F9CF2D040EE00020CC4C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9DF2D040EE30020CC4C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9E92D040EE30020CC4C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2404F9C92D040EE00020CC4C = {
+			isa = PBXGroup;
+			children = (
+				2404F9D42D040EE00020CC4C /* Apologist */,
+				2404F9E52D040EE30020CC4C /* ApologistTests */,
+				2404F9EF2D040EE30020CC4C /* ApologistUITests */,
+				2404F9D32D040EE00020CC4C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2404F9D32D040EE00020CC4C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2404F9D22D040EE00020CC4C /* Apologist.app */,
+				2404F9E22D040EE30020CC4C /* ApologistTests.xctest */,
+				2404F9EC2D040EE30020CC4C /* ApologistUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2404F9D42D040EE00020CC4C /* Apologist */ = {
+			isa = PBXGroup;
+			children = (
+				2404F9D52D040EE00020CC4C /* ApologistApp.swift */,
+				2404F9D72D040EE00020CC4C /* ContentView.swift */,
+				2404FA072D0553850020CC4C /* HomePageView.swift */,
+				2404F9FF2D0413630020CC4C /* LandingScreenView.swift */,
+				2404FA012D0413870020CC4C /* MainAppView.swift */,
+				2404FA052D04E8CA0020CC4C /* ComingSoonView.swift */,
+				2404FA032D0413A10020CC4C /* QuestionView.swift */,
+				2404FA092D0684500020CC4C /* ClaudeAPI.swift */,
+				2404F9D92D040EE20020CC4C /* Assets.xcassets */,
+				2404F9DB2D040EE20020CC4C /* Preview Content */,
+			);
+			path = Apologist;
+			sourceTree = "<group>";
+		};
+		2404F9DB2D040EE20020CC4C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				2404F9DC2D040EE20020CC4C /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		2404F9E52D040EE30020CC4C /* ApologistTests */ = {
+			isa = PBXGroup;
+			children = (
+				2404F9E62D040EE30020CC4C /* ApologistTests.swift */,
+			);
+			path = ApologistTests;
+			sourceTree = "<group>";
+		};
+		2404F9EF2D040EE30020CC4C /* ApologistUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2404F9F02D040EE30020CC4C /* ApologistUITests.swift */,
+				2404F9F22D040EE30020CC4C /* ApologistUITestsLaunchTests.swift */,
+			);
+			path = ApologistUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2404F9D12D040EE00020CC4C /* Apologist */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2404F9F62D040EE30020CC4C /* Build configuration list for PBXNativeTarget "Apologist" */;
+			buildPhases = (
+				2404F9CE2D040EE00020CC4C /* Sources */,
+				2404F9CF2D040EE00020CC4C /* Frameworks */,
+				2404F9D02D040EE00020CC4C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Apologist;
+			productName = Apologist;
+			productReference = 2404F9D22D040EE00020CC4C /* Apologist.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2404F9E12D040EE30020CC4C /* ApologistTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2404F9F92D040EE30020CC4C /* Build configuration list for PBXNativeTarget "ApologistTests" */;
+			buildPhases = (
+				2404F9DE2D040EE30020CC4C /* Sources */,
+				2404F9DF2D040EE30020CC4C /* Frameworks */,
+				2404F9E02D040EE30020CC4C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2404F9E42D040EE30020CC4C /* PBXTargetDependency */,
+			);
+			name = ApologistTests;
+			productName = ApologistTests;
+			productReference = 2404F9E22D040EE30020CC4C /* ApologistTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2404F9EB2D040EE30020CC4C /* ApologistUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2404F9FC2D040EE30020CC4C /* Build configuration list for PBXNativeTarget "ApologistUITests" */;
+			buildPhases = (
+				2404F9E82D040EE30020CC4C /* Sources */,
+				2404F9E92D040EE30020CC4C /* Frameworks */,
+				2404F9EA2D040EE30020CC4C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2404F9EE2D040EE30020CC4C /* PBXTargetDependency */,
+			);
+			name = ApologistUITests;
+			productName = ApologistUITests;
+			productReference = 2404F9EC2D040EE30020CC4C /* ApologistUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2404F9CA2D040EE00020CC4C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					2404F9D12D040EE00020CC4C = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					2404F9E12D040EE30020CC4C = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 2404F9D12D040EE00020CC4C;
+					};
+					2404F9EB2D040EE30020CC4C = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 2404F9D12D040EE00020CC4C;
+					};
+				};
+			};
+			buildConfigurationList = 2404F9CD2D040EE00020CC4C /* Build configuration list for PBXProject "Apologist" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2404F9C92D040EE00020CC4C;
+			productRefGroup = 2404F9D32D040EE00020CC4C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2404F9D12D040EE00020CC4C /* Apologist */,
+				2404F9E12D040EE30020CC4C /* ApologistTests */,
+				2404F9EB2D040EE30020CC4C /* ApologistUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2404F9D02D040EE00020CC4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2404F9DD2D040EE20020CC4C /* Preview Assets.xcassets in Resources */,
+				2404F9DA2D040EE20020CC4C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9E02D040EE30020CC4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9EA2D040EE30020CC4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2404F9CE2D040EE00020CC4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2404FA042D0413A10020CC4C /* QuestionView.swift in Sources */,
+				2404F9D82D040EE00020CC4C /* ContentView.swift in Sources */,
+				2404FA0A2D0684500020CC4C /* ClaudeAPI.swift in Sources */,
+				2404FA022D0413870020CC4C /* MainAppView.swift in Sources */,
+				2404F9D62D040EE00020CC4C /* ApologistApp.swift in Sources */,
+				2404FA062D04E8CA0020CC4C /* ComingSoonView.swift in Sources */,
+				2404FA082D0553850020CC4C /* HomePageView.swift in Sources */,
+				2404FA002D0413630020CC4C /* LandingScreenView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9DE2D040EE30020CC4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2404F9E72D040EE30020CC4C /* ApologistTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2404F9E82D040EE30020CC4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2404F9F12D040EE30020CC4C /* ApologistUITests.swift in Sources */,
+				2404F9F32D040EE30020CC4C /* ApologistUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2404F9E42D040EE30020CC4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2404F9D12D040EE00020CC4C /* Apologist */;
+			targetProxy = 2404F9E32D040EE30020CC4C /* PBXContainerItemProxy */;
+		};
+		2404F9EE2D040EE30020CC4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2404F9D12D040EE00020CC4C /* Apologist */;
+			targetProxy = 2404F9ED2D040EE30020CC4C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2404F9F42D040EE30020CC4C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2404F9F52D040EE30020CC4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2404F9F72D040EE30020CC4C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Apologist/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.Apologist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2404F9F82D040EE30020CC4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Apologist/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.Apologist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2404F9FA2D040EE30020CC4C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.ApologistTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Apologist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Apologist";
+			};
+			name = Debug;
+		};
+		2404F9FB2D040EE30020CC4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.ApologistTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Apologist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Apologist";
+			};
+			name = Release;
+		};
+		2404F9FD2D040EE30020CC4C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.ApologistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Apologist;
+			};
+			name = Debug;
+		};
+		2404F9FE2D040EE30020CC4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.ApologistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Apologist;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2404F9CD2D040EE00020CC4C /* Build configuration list for PBXProject "Apologist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2404F9F42D040EE30020CC4C /* Debug */,
+				2404F9F52D040EE30020CC4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2404F9F62D040EE30020CC4C /* Build configuration list for PBXNativeTarget "Apologist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2404F9F72D040EE30020CC4C /* Debug */,
+				2404F9F82D040EE30020CC4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2404F9F92D040EE30020CC4C /* Build configuration list for PBXNativeTarget "ApologistTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2404F9FA2D040EE30020CC4C /* Debug */,
+				2404F9FB2D040EE30020CC4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2404F9FC2D040EE30020CC4C /* Build configuration list for PBXNativeTarget "ApologistUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2404F9FD2D040EE30020CC4C /* Debug */,
+				2404F9FE2D040EE30020CC4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2404F9CA2D040EE00020CC4C /* Project object */;
+}
