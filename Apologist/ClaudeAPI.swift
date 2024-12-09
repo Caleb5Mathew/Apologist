@@ -10,7 +10,7 @@ import Foundation
 
 class ClaudeAPI {
     static let shared = ClaudeAPI()
-    private let apiKey = "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"
+    private let apiKey = "api_ey"
     private let apiUrl = "https://api.anthropic.com/v1/messages"
     private let apiVersion = "2023-06-01"
 
