@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct ApologistApp: App {
+    @StateObject private var dataController = DataController() // Initialize DataController
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            APContentView()
+                .environment(\.managedObjectContext, dataController.container.viewContext) // Provide Core Data context
+                .environmentObject(dataController) // Provide DataController to child views
         }
     }
 }
