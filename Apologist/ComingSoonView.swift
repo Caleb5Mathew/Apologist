@@ -9,21 +9,12 @@ import SwiftUI
 
 struct ComingSoonView: View {
     var body: some View {
-        VStack {
-            Text("Feature Coming Soon!")
-                .font(.system(size: 24, weight: .bold, design: .default))
-                .foregroundColor(.white)
-                .padding()
+        ContentView() // Replace with the Habit Tracker's main view
+    }
+}
 
-            Text("We're working hard to bring you more features. Stay tuned!")
-                .font(.system(size: 18, weight: .regular, design: .default))
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding()
-
-            Spacer()
-        }
-        .background(Color.black.ignoresSafeArea())
-        .navigationTitle("Coming Soon")
+struct ComingSoonView_Previews: PreviewProvider {
+    static var previews: some View {
+        ComingSoonView()
     }
 }

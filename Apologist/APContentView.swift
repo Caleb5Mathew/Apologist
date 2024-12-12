@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct APContentView: View {
     @State private var isLoaded = false
 
     var body: some View {
