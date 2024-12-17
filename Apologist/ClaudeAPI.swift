@@ -5,28 +5,25 @@
 //  Created by Caleb Matthews  on 12/8/24.
 //
 
-
 import Foundation
 
 class ClaudeAPI {
     static let shared = ClaudeAPI()
-     private let apiKey = "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"
-     private let apiUrl = "https://api.anthropic.com/v1/messages"
-     private let apiVersion = "2023-06-01"
-
-    func sendQuery(_ query: String, completion: @escaping (String?) -> Void) {
+    private let apiKey = "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"
+    private let apiUrl = "https://api.anthropic.com/v1/messages"
+    private let apiVersion = "2023-06-01"
+    func sendStreamedQuery(_ query: String, onReceive: @escaping (String) -> Void, onComplete: @escaping () -> Void) {
         guard let url = URL(string: apiUrl) else {
             print("DEBUG: Invalid URL")
-            completion(nil)
             return
         }
-
-        // Create the request payload
+        
         let parameters: [String: Any] = [
             "model": "claude-3-5-sonnet-20241022",
-            "max_tokens": 1000,
+            "max_tokens": 3000,
             "temperature": 0,
-            "system": "Respond from a Christian POV but don't explicitly say it. The goal is for the user to fully understand the answer to their question, cite famous theologians, bible verses, or books whenever it benefits the answer, more bible verses than anything, try to understand where they're coming from or address common misconceptions. Do all of this in less than 300 words.",
+            "stream": true,
+            "system": "Respond from a Christian POV but don't explicitly say it. The goal is for the user to fully understand the answer to their question, cite famous theologians, bible verses, or books whenever it benefits the answer, more bible verses than anything, try to understand where they're coming from or address common misconceptions.",
             "messages": [
                 [
                     "role": "user",
@@ -39,72 +36,60 @@ class ClaudeAPI {
                 ]
             ]
         ]
-
-        // Set up the request
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue(apiVersion, forHTTPHeaderField: "anthropic-version")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
         } catch {
             print("DEBUG: Failed to serialize request body: \(error.localizedDescription)")
-            completion(nil)
             return
         }
-
-        // Perform the request
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("DEBUG: Networking error: \(error.localizedDescription)")
-                completion(nil)
-                return
-            }
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("DEBUG: Invalid response from server.")
-                completion(nil)
-                return
-            }
-
-            print("DEBUG: HTTP status code: \(httpResponse.statusCode)")
-            if httpResponse.statusCode != 200 {
-                print("DEBUG: Non-200 HTTP response received.")
-                if let rawResponse = String(data: data ?? Data(), encoding: .utf8) {
-                    print("DEBUG: Raw response: \(rawResponse)")
+            guard error == nil else {
+                print("DEBUG: Networking error: \(error!.localizedDescription)")
+                DispatchQueue.main.async {
+                    onComplete()
                 }
-                completion(nil)
                 return
             }
-
-            guard let data = data else {
-                print("DEBUG: No data received.")
-                completion(nil)
+            
+            guard let data = data, let rawResponse = String(data: data, encoding: .utf8) else {
+                print("DEBUG: No data or invalid encoding")
+                DispatchQueue.main.async {
+                    onComplete()
+                }
                 return
             }
-
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                   let contentArray = json["content"] as? [[String: Any]] {
-                    // Extract the text field from the first object in the content array
-                    if let firstContent = contentArray.first?["text"] as? String {
-                        completion(firstContent)
-                    } else {
-                        print("DEBUG: Content array doesn't contain text field.")
-                        completion(nil)
+            
+            // Process Server-Sent Events (SSE) line by line
+            rawResponse.enumerateLines { line, _ in
+                if line.starts(with: "data: ") {
+                    let jsonString = line.replacingOccurrences(of: "data: ", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    
+                    if let jsonData = jsonString.data(using: .utf8),
+                       let json = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                       let delta = json["delta"] as? [String: Any],
+                       let textDelta = delta["text"] as? String {
+                        DispatchQueue.main.async {
+                            print("DEBUG: Received chunk: \(textDelta)")
+                            onReceive(textDelta)
+                        }
                     }
-                } else {
-                    print("DEBUG: Unexpected JSON structure: \(String(data: data, encoding: .utf8) ?? "No JSON")")
-                    completion(nil)
                 }
-            } catch {
-                print("DEBUG: Failed to parse JSON: \(error.localizedDescription)")
-                completion(nil)
+            }
+            
+            DispatchQueue.main.async {
+                print("DEBUG: Streaming complete")
+                onComplete()
             }
         }
-
+        
         task.resume()
     }
 }

@@ -2,9 +2,8 @@
 //  LaunchScreenView.swift
 //  Apologist
 //
-//  Created by Caleb Matthews  on 12/6/24.
+//  Created by Caleb Matthews on 12/6/24.
 //
-
 
 import SwiftUI
 
@@ -48,6 +47,7 @@ struct LaunchScreenView: View {
                     .padding(.bottom, 30)
             }
         }
+        .preferredColorScheme(.dark) // Forces status bar to have white text
         .onAppear {
             startLoading()
         }

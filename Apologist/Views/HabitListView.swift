@@ -1,16 +1,3 @@
-//
-//  HabitListView.swift
-//  Habit
-//
-//  Created by Nazarii Zomko on 30.07.2023.
-//
-//
-//  HabitListView.swift
-//  Habit
-//
-//  Created by Nazarii Zomko on 30.07.2023.
-//
-
 import CoreData
 import SwiftUI
 
@@ -37,14 +24,14 @@ struct HabitListView: View {
     
     var body: some View {
         ZStack {
-            // Gradient background for the light green area (vertical)
+            // Gradient background
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "#274E45"), // Starting green (top)
-                    Color(hex: "#2F726A")  // Slightly lighter green (bottom)
+                    Color(hex: "#0B1E30"),
+                    Color(hex: "#0B1E30")
                 ]),
                 startPoint: .top,
-                endPoint: .bottom // Vertical gradient
+                endPoint: .bottom
             )
             .ignoresSafeArea()
             
@@ -52,7 +39,7 @@ struct HabitListView: View {
                 // List of existing habits
                 ForEach(habits) { habit in
                     HabitRowView(habit: habit)
-                        .listRowBackground(Color.clear) // Keep background clear
+                        .listRowBackground(Color.clear)
                         .padding(8)
                 }
                 .onDelete(perform: deleteItems)
@@ -60,30 +47,29 @@ struct HabitListView: View {
                 .buttonStyle(.plain)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 6, trailing: 16))
 
-                // Suggested Habit
-                if isSuggestedHabitVisible {
+                // Suggested Habit: Display only when no active habits exist
+                if habits.isEmpty && isSuggestedHabitVisible {
                     SuggestedHabitRowView(
-                        title: "Read Bible for 15 mins a day",
                         isVisible: $isSuggestedHabitVisible,
-                        onCreate: createSuggestedHabit
+                        onNavigate: navigateToCreateHabit
                     )
                     .padding(.horizontal)
-                    .listRowBackground(Color.clear) // Fix for row background
+                    .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 6, trailing: 16))
                 }
             }
-            .listStyle(.plain) // Ensure no grouped style
+            .listStyle(.plain)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(hex: "#274E45"), // Starting green (top)
-                        Color(hex: "#2F726A")  // Slightly lighter green (bottom)
+                        Color(hex: "#14283A"),
+                        Color(hex: "#1D4038")
                     ]),
                     startPoint: .top,
-                    endPoint: .bottom // Vertical gradient
+                    endPoint: .bottom
                 )
-            ) // Apply gradient to the list background
+            )
         }
     }
     
@@ -92,66 +78,39 @@ struct HabitListView: View {
         dataController.save()
     }
     
-    private func createSuggestedHabit() {
-        let suggestedHabit = Habit(context: viewContext)
-        suggestedHabit.title = "Read Bible for 15 mins a day"
-        suggestedHabit.motivation = "Grow spiritually"
-        suggestedHabit.color = HabitColor.blue // Assuming HabitColor is an enum or model.
-        suggestedHabit.creationDate = Date()
-        suggestedHabit.regularity = "Everyday"
-        
-        dataController.save()
+    private func navigateToCreateHabit() {
+        let newHabitView = EditHabitView(habit: nil)
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.present(
+                UIHostingController(rootView: newHabitView), animated: true
+            )
+        }
     }
 }
-
 
 struct SuggestedHabitRowView: View {
-    var title: String
     @Binding var isVisible: Bool
-    var onCreate: () -> Void
+    var onNavigate: () -> Void
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            // Match HabitRowView background and layout
-            Color(hex: "#D4D4D4") // Same light gray background
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous) // Match rounded corners
-                )
-                .onTapGesture {
-                    onCreate() // Trigger habit creation
-                    isVisible = false // Hide the suggested habit
-                }
-
-            HStack {
-                Text("💡 Suggested Habit: \(title)")
-                    .font(.system(size: 14, weight: .regular)) // Reduced text size
-                    .foregroundColor(.black) // Text color is black
-
-                Spacer()
-
-                Button(action: {
-                    isVisible = false // Hide the suggested habit when "X" is tapped
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.black) // "X" color is black
-                        .font(.body) // Smaller font for the button
-                }
-                .padding(8) // Position the "X" button
+        RoundedRectangle(cornerRadius: 10)
+            .stroke(Color.white, lineWidth: 2) // White border
+            .background(Color.clear) // Transparent background
+            .frame(height: 75) // Match HabitRowView height
+            .overlay(
+                Text("Create your first habit")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            )
+            .onTapGesture {
+                onNavigate() // Trigger navigation
+                isVisible = false // Hide suggested habit
             }
-            .padding(.horizontal, 22) // Match horizontal padding of HabitRowView
-            .padding(.vertical, 8) // Adjusted vertical padding to fit smaller height
-        }
-        .frame(height: 37.5) // Height is now half of HabitRowView (75 / 2 = 37.5)
-        .frame(maxWidth: .infinity) // Ensure it spans the full width of the parent container
-        .padding(.horizontal, 16) // Match the outer padding of HabitRowView
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
     }
 }
-
-
-
-
-
-
 
 struct HabitListView_Previews: PreviewProvider {
     static var previews: some View {

@@ -2,8 +2,6 @@
 //  EditHabitView.swift
 //  Habit
 //
-//  Created by Nazarii Zomko on 15.05.2023.
-//
 
 import SwiftUI
 import CoreData
@@ -18,7 +16,7 @@ struct EditHabitView: View {
 
     private let regularityOptions = ["Everyday", "Once a Week", "2 Times a Week", "3 Times a Week", "4 Times a Week", "5 Times a Week", "6 Times a Week"]
 
-    private var motivationPrompt = Constants.motivationPrompts.randomElement() ?? "Yes, you can! 💪"
+    private var motivationPrompt = "Because I want to waste less time and become the best version of myself"
 
     @State private var isPresentingColorsPicker = false
 
@@ -43,24 +41,34 @@ struct EditHabitView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: 30) { // Increased spacing between fields
                     nameTextField
-                    motivationTextField
+                    whyTextField // Replaced motivationTextField
                     colorPicker
                     regularityPicker
                 }
+                .padding(.top, 20) // Reduce padding between the title and content
+                .padding(.horizontal)
             }
+            .navigationTitle(habit == nil ? "Add New Habit" : "Edit a Habit") // Use navigationTitle
+            .navigationBarTitleDisplayMode(.inline) // Compact navigation bar height
+            
+            // Toolbar background and styling
+            .toolbarBackground(Color(hex: "#1F5F4E"), for: .navigationBar) // Emerald Green background
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar) // Force light color scheme
+            
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(habit == nil ? "Add New Habit" : "Edit a Habit")
+                        .font(.headline)
+                        .foregroundColor(.white) // Title to white
+                }
                 saveToolbarItem
                 if habit != nil {
                     deleteToolbarItem
                 }
             }
-            .toolbarBackground(Color(hex: "#1F5F4E"), for: .navigationBar) // Emerald Green for toolbar
-            .toolbarColorScheme(.light, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .navigationTitle(habit == nil ? "Add New Habit" : "Edit a Habit")
-            .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $isPresentingColorsPicker) {
             ColorsPickerView(selectedColor: $color)
@@ -73,51 +81,35 @@ struct EditHabitView: View {
     }
 
     var nameTextField: some View {
-        VStack {
+        VStack(spacing: 8) { // Adjust spacing between elements in this section
             HStack {
                 Text("NAME")
-                    .padding(.horizontal)
                     .font(.caption.bold())
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for text
                 Spacer()
             }
             .accessibilityHidden(true)
             TextField("Name", text: $title, prompt: Text("Read a book, Meditate etc.")
-                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Lighter Moonlight Silver for placeholder
-                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for text
+                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Placeholder text
+                .foregroundColor(Color(hex: "#D4DDE1")) // Text color
                 .focused($isNameTextFieldFocused)
-                .padding(.horizontal)
-                .accessibilityIdentifier("nameTextField")
         }
-        .padding(.top, 40)
-        .padding(.bottom, 15)
-        .background(alignment: .bottom, content: {
-            LinearGradient(
-                gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#274E45")]), // Midnight Blue to Soft Pine Green
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 500)
-        })
     }
 
-    var motivationTextField: some View {
-        VStack {
+    var whyTextField: some View { // Updated field
+        VStack(spacing: 8) {
             HStack {
-                Text("MOTIVATE YOURSELF")
-                    .padding(.horizontal)
+                Text("WHY?")
                     .font(.caption.bold())
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                 Spacer()
             }
             .accessibilityHidden(true)
-            .padding(.top)
-            TextField("Motivation", text: $motivation, prompt: Text(motivationPrompt)
-                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Lighter Moonlight Silver for placeholder
+            TextField("Why?", text: $motivation, prompt: Text(motivationPrompt)
+                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Updated placeholder
                 .focused($isMotivationTextFieldFocused)
                 .font(.callout)
-                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for text
-                .padding(.horizontal)
+                .foregroundColor(Color(hex: "#D4DDE1")) // Text color
         }
     }
 
@@ -130,7 +122,6 @@ struct EditHabitView: View {
                 .frame(height: 20)
                 .foregroundColor(Color(color))
         }
-        .padding()
         .onTapGesture {
             isPresentingColorsPicker = true
         }
@@ -138,10 +129,9 @@ struct EditHabitView: View {
     }
 
     var regularityPicker: some View {
-        VStack {
+        VStack(spacing: 8) {
             HStack {
                 Text("REGULARITY")
-                    .padding(.horizontal)
                     .font(.caption.bold())
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                 Spacer()
@@ -154,9 +144,7 @@ struct EditHabitView: View {
                 }
             }
             .pickerStyle(MenuPickerStyle())
-            .padding(.horizontal)
         }
-        .padding(.top)
     }
 
     var saveToolbarItem: some ToolbarContent {
@@ -165,7 +153,7 @@ struct EditHabitView: View {
                 save()
                 dismiss()
             }
-            .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow for Save button
+            .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for Save button
             .accessibilityIdentifier("saveHabit")
         }
     }

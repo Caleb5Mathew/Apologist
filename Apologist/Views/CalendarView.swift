@@ -23,7 +23,7 @@ struct CalendarView: UIViewRepresentable {
         calendarView.selectionBehavior = dateSelection
         
         // Apply custom styling to match the Midnight Forest theme
-        calendarView.backgroundColor = UIColor(Color(hex: "#0B1E30")) // Deep Midnight Blue background
+        calendarView.backgroundColor = UIColor(Color(hex: "#1E1E1E")) // Deep Midnight Blue background
         calendarView.layer.cornerRadius = 12
         calendarView.layer.masksToBounds = true
         
