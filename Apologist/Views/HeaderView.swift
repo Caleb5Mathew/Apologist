@@ -50,15 +50,15 @@ struct HeaderView: View {
         }
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#274E45")]), // Same gradient as the background
+                gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#14283A")]), // Same gradient as the background
                 startPoint: .top,
                 endPoint: .bottom
-            )
+            )//the background of habits gradient
             .ignoresSafeArea(edges: .top) // Ensure it covers the top
         )
         .toolbarBackground(
             LinearGradient(
-                gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#274E45")]), // Same gradient as the background
+                gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#0B1E30")]), // Same gradient as the background
                 startPoint: .top,
                 endPoint: .bottom
             ),

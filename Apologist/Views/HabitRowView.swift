@@ -20,6 +20,14 @@ struct HabitRowView: View {
                 .onTapGesture {
                     isPresentingEditHabitView = true
                 }
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 13, style: .continuous) // Rounded corners
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 13, style: .continuous)
+                        .stroke(Color.white, lineWidth: 3) // Black border
+                )
+                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 4) // Soft drop shadow
             VStack(spacing: -8) {
                 HStack() {
                     percentageView
@@ -40,9 +48,9 @@ struct HabitRowView: View {
                 .frame(maxHeight: .infinity)
             }
         }
-        .frame(height: 75)
+        .frame(height: 100)
         .clipShape(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 13, style: .continuous)
         )
         .sheet(isPresented: $isPresentingEditHabitView) {
             DetailView(habit: habit)
@@ -54,6 +62,7 @@ struct HabitRowView: View {
             UIAccessibility.post(notification: .announcement, argument: "\(habit.isCompleted(daysAgo: 0) ? "completed" : "not completed")")
         }
     }
+
     var progressMultiplier: Double {
         guard let regularity = habit.regularity?.lowercased() else { return 6.4 } // Default to 6.4 if no regularity
 
@@ -145,7 +154,6 @@ struct HabitRowView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: Constants.dayOfTheWeekFrameSize, height: Constants.dayOfTheWeekFrameSize)
                         .contentShape(Rectangle())
-                        
                 }
             }
         }
@@ -155,7 +163,7 @@ struct HabitRowView: View {
         Text(habit.title ?? "")
             .font(.system(size: 16,  weight: .semibold)) // Bold title
             .foregroundColor(.black)
-            .if(colorScheme == .dark) { $0.shadow(radius: 3) }
+            .if(colorScheme == .dark) { $0.shadow(radius: 1) }
     }
     
     func toggleCompletion(daysAgo: Int) {
@@ -172,3 +180,4 @@ struct HabitRowView_Previews: PreviewProvider {
             .padding()
     }
 }
+

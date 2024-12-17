@@ -34,12 +34,18 @@ struct DetailView: View {
                     .padding([.horizontal, .bottom])
                 CalendarView(dateInterval: .init(start: .distantPast, end: Date.now), completedDates: completedDates, color: habit.color)
             }
-            .navigationTitle("\(habit.title)")
-            .toolbarBackground(Color(hex: "#2F726A"), for: .navigationBar) // Misty Teal
+            .toolbarBackground(Color(hex: "#1E1E1E"), for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(habit.title)
+                        .font(.system(size: 20, weight: .semibold, design: .default))
+                        .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
+                        .tracking(1.2) // Subtle letter spacing
+                }
+
                 ToolbarItem(placement: .destructiveAction) {
                     NavigationLink("Edit") {
                         EditHabitView(habit: habit)
@@ -47,6 +53,7 @@ struct DetailView: View {
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                     .accessibilityIdentifier("editHabit")
                 }
+
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {
                         dismiss()
@@ -59,41 +66,42 @@ struct DetailView: View {
             }
         }
     }
-    
+
     var regularityAndReminder: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text("REGULARITY")
                     .font(.caption.bold())
-                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
+                    .foregroundColor(Color(hex: "#F8C471")) // Gold tone
+                    .tracking(0.8)
                 Text(habit.regularity ?? "Not Set")
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
             }
             .padding(.leading)
             .padding(.trailing, 70)
-            .accessibilityElement(children: .combine)
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text("REMIND ME")
                     .font(.caption.bold())
-                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
+                    .foregroundColor(Color(hex: "#F8C471")) // Gold tone
+                    .tracking(0.8)
                 Text("--:--") // Placeholder for future reminder logic
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
             }
-            .accessibilityElement(children: .combine)
 
             Spacer()
         }
-        .padding(.top, 40)
+        .padding(.top, 30)
         .padding(.bottom, 15)
-        .background(alignment: .bottom, content: {
+        .background(
             LinearGradient(
-                gradient: Gradient(colors: [Color(hex: "#274E45"), Color(hex: "#0B1E30")]), // Soft Pine Green to Midnight Blue
+                gradient: Gradient(colors: [Color(hex: "#1E1E1E"), Color(hex: "#1E1E1E")]),
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 500)
-        })
+        )
     }
 
     var overview: some View {
@@ -106,7 +114,6 @@ struct DetailView: View {
                     secondaryText2: "Year: +\(habit.strengthGainedWithinLastDays(daysAgo: 365))%"
                 )
                 .tag(0)
-                .accessibilityElement(children: .combine)
 
                 OverviewView(
                     title: "Completions",
@@ -115,7 +122,6 @@ struct DetailView: View {
                     secondaryText2: "Year: +\(habit.completionsWithinLastDays(daysAgo: 365))"
                 )
                 .tag(1)
-                .accessibilityElement(children: .combine)
 
                 OverviewView(
                     title: "Streak",
@@ -124,7 +130,6 @@ struct DetailView: View {
                     secondaryText2: ""
                 )
                 .tag(2)
-                .accessibilityElement(children: .combine)
             }
             .tabViewStyle(.page)
             .frame(height: 190)
@@ -132,13 +137,14 @@ struct DetailView: View {
             HStack {
                 Text("OVERVIEW")
                     .font(.caption.bold())
-                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
+                    .foregroundColor(Color(hex: "#F8C471")) // Gold tone
+                    .tracking(0.8)
                     .padding()
 
                 Spacer()
 
                 Text("Created: \(formattedCreationDate)")
-                    .font(.caption.bold())
+                    .font(.caption)
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                     .padding(.trailing)
             }
@@ -148,7 +154,6 @@ struct DetailView: View {
     private var formattedCreationDate: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .none
         return dateFormatter.string(from: habit.creationDate)
     }
 
@@ -165,26 +170,20 @@ struct DetailView: View {
         var secondaryText2: LocalizedStringKey
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(title)
                     .font(.title3.bold())
-                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
+                    .foregroundColor(Color(hex: "#F8C471")) // Gold tone
+                    .tracking(0.8)
+                Text(mainText)
+                    .font(.system(size: 50, weight: .bold))
+                    .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                 HStack {
-                    VStack(alignment: .leading) {
-                        VStack {
-                            Text(mainText)
-                                .font(.system(size: 50).bold())
-                                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
-                        }
-                        HStack {
-                            Text(secondaryText1)
-                                .padding(.trailing, 60)
-                                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
-                            Text(secondaryText2)
-                                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
-                        }
-                    }
+                    Text(secondaryText1)
+                        .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                     Spacer()
+                    Text(secondaryText2)
+                        .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                 }
             }
             .padding()

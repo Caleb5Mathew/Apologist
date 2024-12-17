@@ -31,8 +31,8 @@ struct ContentView: View {
                 // Gradient background
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(hex: "#274E45"), // Original green under "Weekly Progress"
-                        Color(hex: "#2F726A")  // Slightly lighter green
+                        Color(hex: "#0B1E30"), // Original green under "Weekly Progress"
+                        Color(hex: "#0B1E30")  // Slightly lighter green
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -47,8 +47,8 @@ struct ContentView: View {
                             VStack {
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        Color(hex: "#000814"),  // Very dark blue
-                                        Color(hex: "#001D34"),  // Intermediate dark blue
+                                        Color(hex: "#0B1E30"),  // Very dark blue
+                                        Color(hex: "#0B1E30"),  // Intermediate dark blue
                                         Color(hex: "#0B1E30")   // Target dark blue
                                     ]),
                                     startPoint: .top,
