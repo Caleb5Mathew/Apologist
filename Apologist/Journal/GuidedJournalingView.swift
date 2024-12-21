@@ -195,11 +195,12 @@ struct GuidedJournalingView: View {
             journalManager.addEntry(
                 title: "Guided Journaling - Page \(currentPage) - \(formattedDate())",
                 content: answer,
-                type: "Guided"
+                type: "Guided Journaling" // Make sure this matches exactly with the tab tag
             )
         }
         presentationMode.wrappedValue.dismiss()
     }
+
 
     // Format the date
     private func formattedDate() -> String {

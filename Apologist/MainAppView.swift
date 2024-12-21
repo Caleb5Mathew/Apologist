@@ -41,13 +41,15 @@ struct MainAppView: View {
                     Spacer()
                     Button(action: { selectedTab = 0 }) { // New Home Tab
                         VStack {
-                            Image(systemName: "house.fill") // Home Icon
+                            Image(systemName: "square.and.pencil") // New Feedback Icon
                                 .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Home")
+                            Text("Feedback")
                                 .font(.system(size: 10))
                                 .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
                         }
+
+
                     }
 
                     Spacer()
