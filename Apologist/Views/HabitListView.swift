@@ -4,6 +4,7 @@ import SwiftUI
 struct HabitListView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var isSuggestedHabitVisible = true
+    @State private var isCreatingNewHabit = false // State variable for sheet
 
     @EnvironmentObject var dataController: DataController
     
@@ -71,6 +72,12 @@ struct HabitListView: View {
                 )
             )
         }
+        // Present EditHabitView in a sheet
+        .sheet(isPresented: $isCreatingNewHabit) {
+            EditHabitView(habit: nil)
+                .environment(\.managedObjectContext, viewContext)
+                .environmentObject(dataController)
+        }
     }
     
     private func deleteItems(offsets: IndexSet) {
@@ -79,14 +86,10 @@ struct HabitListView: View {
     }
     
     private func navigateToCreateHabit() {
-        let newHabitView = EditHabitView(habit: nil)
-        if let window = UIApplication.shared.windows.first {
-            window.rootViewController?.present(
-                UIHostingController(rootView: newHabitView), animated: true
-            )
-        }
+        isCreatingNewHabit = true
     }
 }
+
 
 struct SuggestedHabitRowView: View {
     @Binding var isVisible: Bool

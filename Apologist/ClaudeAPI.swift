@@ -9,7 +9,7 @@ import Foundation
 
 class ClaudeAPI {
     static let shared = ClaudeAPI()
-    private let apiKey = "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"
+    private let apiKey = "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"
     private let apiUrl = "https://api.anthropic.com/v1/messages"
     private let apiVersion = "2023-06-01"
     func sendStreamedQuery(_ query: String, onReceive: @escaping (String) -> Void, onComplete: @escaping () -> Void) {

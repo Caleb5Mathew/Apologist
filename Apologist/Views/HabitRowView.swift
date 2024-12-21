@@ -19,6 +19,7 @@ struct HabitRowView: View {
             Color(hex: "#d4d4d4") // Light gray background
                 .onTapGesture {
                     isPresentingEditHabitView = true
+                    isPresentingEditHabitView = true
                 }
                 .clipShape(
                     RoundedRectangle(cornerRadius: 13, style: .continuous) // Rounded corners

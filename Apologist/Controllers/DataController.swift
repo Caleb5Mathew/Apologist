@@ -159,4 +159,3 @@ extension URL {
         return fileContainer.appendingPathComponent("\(databaseName).sqlite")
     }
 }
-
