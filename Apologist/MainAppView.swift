@@ -23,28 +23,45 @@ struct MainAppView: View {
         
         NavigationView {
             VStack(spacing: 0) {
-                // Main content based on selected tab
-                if selectedTab == 1 {
-                    HomePageView() // Home Page
+                if selectedTab == 0 {
+                    HomeScreenView(selectedTab: $selectedTab) // Pass the binding
+                }
+                else if selectedTab == 1 {
+                    JournalHomeView() // Journaling Page
                 } else if selectedTab == 2 {
                     askQuestionView // "Ask Questions" Page
                 } else if selectedTab == 3 {
                     ContentView() // "Coming Soon" Page
                 }
 
+
                 // Bottom Tab Bar
+
                 HStack {
-                    Spacer() // Add space to center items
+                    Spacer()
+                    Button(action: { selectedTab = 0 }) { // New Home Tab
+                        VStack {
+                            Image(systemName: "house.fill") // Home Icon
+                                .font(.system(size: 24))
+                                .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
+                            Text("Home")
+                                .font(.system(size: 10))
+                                .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
+                        }
+                    }
+
+                    Spacer()
                     Button(action: { selectedTab = 1 }) {
                         VStack {
-                            Image(systemName: "house.fill")
+                            Image(systemName: "pencil.and.outline")
                                 .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 1 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Home")
+                            Text("Journal")
                                 .font(.system(size: 10))
                                 .foregroundColor(selectedTab == 1 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
                         }
                     }
+
                     Spacer()
                     Button(action: { selectedTab = 2 }) {
                         VStack {
@@ -56,10 +73,11 @@ struct MainAppView: View {
                                 .foregroundColor(selectedTab == 2 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
                         }
                     }
+
                     Spacer()
                     Button(action: { selectedTab = 3 }) {
                         VStack {
-                            Image(systemName: "checkmark.circle.fill") // Replaced ellipsis with checkmark
+                            Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 3 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
                             Text("Habits")
@@ -67,8 +85,9 @@ struct MainAppView: View {
                                 .foregroundColor(selectedTab == 3 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
                         }
                     }
-                    Spacer() // Add space to center items
+                    Spacer()
                 }
+
                 .padding(.vertical, 10)
                 .padding(.horizontal, 30)
                 .background(LinearGradient(
@@ -81,6 +100,8 @@ struct MainAppView: View {
             .navigationBarHidden(true)
             .preferredColorScheme(.dark)
         }
+        .navigationViewStyle(StackNavigationViewStyle()) // Forces single-column layout on iPad
+
     }
     
     
@@ -188,7 +209,7 @@ struct MainAppView: View {
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 1)
+                                .stroke(Color.white, lineWidth: 2)
                         )
                         .foregroundColor(Color.white)
                         .font(.system(size: 16))
@@ -507,5 +528,11 @@ extension Color {
         let blue = Double(rgb & 0xFF) / 255.0
 
         self.init(red: red, green: green, blue: blue)
+    }
+}
+
+struct MainAppWrapperView: View {
+    var body: some View {
+        MainAppView() // Wraps MainAppView properly
     }
 }
