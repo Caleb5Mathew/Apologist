@@ -5,6 +5,7 @@
 
 import SwiftUI
 import CoreData
+import CoreHaptics
 
 struct EditHabitView: View {
     let habit: Habit?
@@ -19,6 +20,8 @@ struct EditHabitView: View {
     private var motivationPrompt = "Because I want to waste less time and become the best version of myself"
 
     @State private var isPresentingColorsPicker = false
+    @State private var isShowingWhyExplanation = false
+    @State private var engine: CHHapticEngine?
 
     @FocusState private var isNameTextFieldFocused
     @FocusState private var isMotivationTextFieldFocused
@@ -74,6 +77,7 @@ struct EditHabitView: View {
             ColorsPickerView(selectedColor: $color)
         }
         .onAppear {
+            prepareHaptics()
             if habit == nil {
                 isNameTextFieldFocused = true
             }
@@ -98,13 +102,28 @@ struct EditHabitView: View {
 
     var whyTextField: some View { // Updated field
         VStack(spacing: 8) {
-            HStack {
+            HStack(spacing: 4) {
                 Text("WHY?")
                     .font(.caption.bold())
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
+                Image(systemName: "questionmark.circle")
+                    .foregroundColor(Color(hex: "#D4DDE1"))
+                    .onTapGesture {
+                        withAnimation {
+                            isShowingWhyExplanation.toggle()
+                        }
+                    }
                 Spacer()
             }
             .accessibilityHidden(true)
+
+            if isShowingWhyExplanation {
+                Text("Having a strong why behind your goal is crucial—it keeps you motivated and aligned with your purpose.")
+                    .font(.footnote)
+                    .foregroundColor(Color(hex: "#D4DDE1").opacity(0.8))
+                    .transition(.opacity)
+            }
+
             TextField("Why?", text: $motivation, prompt: Text(motivationPrompt)
                 .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Updated placeholder
                 .focused($isMotivationTextFieldFocused)
@@ -137,7 +156,7 @@ struct EditHabitView: View {
                 Spacer()
             }
             Picker("Regularity", selection: $regularity) {
-                ForEach(regularityOptions, id: \.self) { option in
+                ForEach(regularityOptions, id: \ .self) { option in
                     Text(option)
                         .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for picker options
                         .tag(option)
@@ -173,6 +192,7 @@ struct EditHabitView: View {
 
     func save() {
         withAnimation {
+            triggerHapticFeedback()
             if let habit {
                 habit.title = title
                 habit.motivation = motivation
@@ -198,6 +218,20 @@ struct EditHabitView: View {
             }
         }
         dismiss()
+    }
+
+    func prepareHaptics() {
+        do {
+            engine = try CHHapticEngine()
+            try engine?.start()
+        } catch {
+            print("Haptic engine failed to start: \(error.localizedDescription)")
+        }
+    }
+
+    func triggerHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 }
 
