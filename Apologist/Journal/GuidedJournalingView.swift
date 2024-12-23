@@ -5,14 +5,9 @@
 //  Created by Caleb Matthews  on 12/17/24.
 //
 
-//
-//  GuidedJournalingView.swift
-//  Apologist
-//
-//  Created by Caleb Matthews  on 12/17/24.
-//
 
 import SwiftUI
+import CoreHaptics
 
 struct GuidedJournalingView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -23,10 +18,12 @@ struct GuidedJournalingView: View {
     @State private var showExitConfirmation = false
     @State private var currentPage = 1 // Tracks the current page (1, 2, 3, or 4)
     @State private var typewriterTimer: Timer?
+    @State private var engine: CHHapticEngine?
+    @State private var showBackConfirmation = false // Tracks if back navigation confirmation should be shown
 
     private let questions = [
-        "What was the best part about today?",
         "What have you been stressing about recently?",
+        "What was the best part about today?",
         "What are some things you would like to work on throughout this week?",
         "What are you grateful for?"
     ]
@@ -42,12 +39,16 @@ struct GuidedJournalingView: View {
                 // Top Bar
                 HStack {
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
+                        if !answer.isEmpty || currentPage > 1 {
+                            showBackConfirmation = true
+                        } else {
+                            navigateBack()
+                        }
                     }) {
                         HStack {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(hex: "#FFFFFF")) // Yellow color
+                                .foregroundColor(Color(hex: "#FFFFFF"))
                             Text("")
                         }
                     }
@@ -57,6 +58,7 @@ struct GuidedJournalingView: View {
                     if currentPage < questions.count { // Show checkmark except on the last page
                         Button(action: {
                             navigateForward()
+                            triggerHapticFeedback(style: .warning)
                         }) {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 24, weight: .bold))
@@ -105,6 +107,7 @@ struct GuidedJournalingView: View {
                     Spacer()
                     Button(action: {
                         saveAndExit()
+                        triggerHapticFeedback(style: .success)
                     }) {
                         Text("Save and Exit")
                             .font(.system(size: 14, weight: .bold))
@@ -117,28 +120,58 @@ struct GuidedJournalingView: View {
         }
         .onAppear {
             fadeInBackground()
+            prepareHaptics()
         }
         .navigationBarHidden(true)
         .confirmationDialog("", isPresented: $showExitConfirmation) {
             Button("Exit", role: .destructive) {
-                presentationMode.wrappedValue.dismiss()
+                navigateToJournalHome()
+                triggerHapticFeedback(style: .error)
             }
             Button("Save and Exit", role: .cancel) {
                 saveAndExit()
+                triggerHapticFeedback(style: .success)
             }
         } message: {
             Text("Exiting will not save current journal entry. Are you sure?")
+        }
+        .confirmationDialog("", isPresented: $showBackConfirmation) {
+            Button("Exit", role: .destructive) {
+                navigateToJournalHome()
+                triggerHapticFeedback(style: .error)
+            }
+            Button("Save and Exit", role: .cancel) {
+                saveCurrentPageAndNavigateBack()
+                triggerHapticFeedback(style: .success)
+            }
+        } message: {
+            Text("You have unsaved changes. Would you like to save your progress before going back?")
         }
     }
 
     // Navigation Backward
     private func navigateBack() {
-        if currentPage == 1 {
-            presentationMode.wrappedValue.dismiss()
-        } else {
+        if currentPage > 1 {
             currentPage -= 1
             resetForNewPage()
+        } else {
+            navigateToJournalHome()
         }
+    }
+
+    private func saveCurrentPageAndNavigateBack() {
+        if !answer.isEmpty {
+            journalManager.addEntry(
+                title: "Guided Journaling - Page \(currentPage) - \(formattedDate())",
+                content: answer,
+                type: "Guided Journaling"
+            )
+        }
+        navigateToJournalHome()
+    }
+
+    private func navigateToJournalHome() {
+        presentationMode.wrappedValue.dismiss()
     }
 
     // Navigation Forward
@@ -198,9 +231,23 @@ struct GuidedJournalingView: View {
                 type: "Guided Journaling" // Make sure this matches exactly with the tab tag
             )
         }
-        presentationMode.wrappedValue.dismiss()
+        navigateToJournalHome()
     }
 
+    // Prepare haptics
+    private func prepareHaptics() {
+        do {
+            engine = try CHHapticEngine()
+            try engine?.start()
+        } catch {
+            print("Haptic engine failed to start: \(error.localizedDescription)")
+        }
+    }
+
+    private func triggerHapticFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(style)
+    }
 
     // Format the date
     private func formattedDate() -> String {
