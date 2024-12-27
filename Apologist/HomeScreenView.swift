@@ -4,16 +4,13 @@
 //
 //  Created by Caleb Matthews  on 12/20/24.
 //import SwiftUI
-
 import SwiftUI
-import MessageUI
+import FirebaseFirestore
 
 struct HomeScreenView: View {
-    @State private var email: String = ""
     @State private var feedback: String = ""
     @State private var isSubmitted: Bool = false
     @Binding var selectedTab: Int
-    @State private var showingMailError = false
 
     var body: some View {
         ZStack {
@@ -61,25 +58,6 @@ struct HomeScreenView: View {
                 } else {
                     // Input Fields
                     VStack(spacing: 16) {
-                        // Email Field (Optional)
-                        ZStack(alignment: .leading) {
-                            if email.isEmpty {
-                                Text("Your Email (optional)")
-                                    .foregroundColor(Color(red: 0.682, green: 0.714, blue: 0.749)) // Light gray (#AEB6BF)
-                                    .padding(.leading, 12)
-                            }
-                            TextField("", text: $email)
-                                .padding(12)
-                                .background(Color.clear) // Transparent background
-                                .foregroundColor(.white)
-                                .font(.system(size: 16))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color(red: 0.682, green: 0.714, blue: 0.749), lineWidth: 1) // Light gray border
-                                )
-                        }
-                        .padding(.horizontal, 20)
-
                         // Feedback Field
                         ZStack(alignment: .topLeading) {
                             if feedback.isEmpty {
@@ -100,16 +78,14 @@ struct HomeScreenView: View {
                                 )
                                 .frame(height: 150) // Adjusted height for feedback
                         }
-
                         .padding(.horizontal, 20)
                     }
 
                     // Submit Button
                     Button(action: {
-                        sendFeedback()
+                        sendFeedbackToFirebase()
                         withAnimation {
                             isSubmitted = true
-                            email = ""
                             feedback = ""
                         }
                     }) {
@@ -133,55 +109,23 @@ struct HomeScreenView: View {
             }
         }
         .navigationBarHidden(true)
-        .alert(isPresented: $showingMailError) {
-            Alert(
-                title: Text("Error"),
-                message: Text("Mail services are not available."),
-                dismissButton: .default(Text("OK"))
-            )
-        }
     }
 
-    func sendFeedback() {
-        guard MFMailComposeViewController.canSendMail() else {
-            print("Mail services are not available.")
-            showingMailError = true
-            return
-        }
+    /// Function to send feedback to Firebase Firestore
+    func sendFeedbackToFirebase() {
+        let db = Firestore.firestore()
 
-        let mailComposeVC = MFMailComposeViewController()
-        mailComposeVC.setToRecipients(["4caleb4mathew4@gmail.com"])
-        mailComposeVC.setSubject("User Feedback")
-        mailComposeVC.setMessageBody(
-            """
-            Email: \(email.isEmpty ? "No email provided" : email)
-            Feedback:
-            \(feedback)
-            """, isHTML: false
-        )
-        mailComposeVC.mailComposeDelegate = Coordinator()
-        UIApplication.shared.windows.first?.rootViewController?.present(mailComposeVC, animated: true)
-    }
+        let feedbackData: [String: Any] = [
+            "feedback": feedback,
+            "timestamp": Date().timeIntervalSince1970
+        ]
 
-    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        db.collection("feedbacks").addDocument(data: feedbackData) { error in
             if let error = error {
-                print("Mail error: \(error.localizedDescription)")
+                print("Error saving feedback: \(error.localizedDescription)")
             } else {
-                switch result {
-                case .sent:
-                    print("Mail sent successfully.")
-                case .saved:
-                    print("Mail saved as draft.")
-                case .cancelled:
-                    print("Mail cancelled by user.")
-                case .failed:
-                    print("Mail sending failed.")
-                @unknown default:
-                    print("Unknown result.")
-                }
+                print("Feedback successfully saved to Firestore!")
             }
-            controller.dismiss(animated: true, completion: nil)
         }
     }
 }

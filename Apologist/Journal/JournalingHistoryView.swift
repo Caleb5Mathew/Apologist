@@ -52,27 +52,43 @@ struct JournalingHistoryView: View {
                         .font(.headline)
                     Spacer()
                 } else {
-                    List(filteredEntries) { entry in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(entry.title ?? "Untitled")
-                                .font(.headline)
-                                .foregroundColor(.white)
+                    List {
+                        ForEach(filteredEntries) { entry in
+                            NavigationLink(destination: JournalDetailView(entry: entry)) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(entry.title ?? "Untitled")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
 
-                            Text(entry.content ?? "")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                                .lineLimit(2)
+                                    Text(entry.content ?? "")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .lineLimit(2)
 
-                            Text(entry.date?.formatted(date: .abbreviated, time: .shortened) ?? "")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.5))
+                                    Text(entry.date?.formatted(date: .abbreviated, time: .shortened) ?? "")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.5))
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .listRowBackground(Color.clear) // Transparent background for list
                         }
-                        .padding(.vertical, 4)
-                        .listRowBackground(Color.clear) // Transparent background for list
+                        .onDelete(perform: deleteEntries)
                     }
                     .listStyle(PlainListStyle())
                 }
             }
+        }
+    }
+
+    private func deleteEntries(at offsets: IndexSet) {
+        let filteredEntries = manager.entries
+            .filter { $0.type == selectedTab }
+            .sorted(by: { ($0.date ?? Date()) > ($1.date ?? Date()) })
+
+        for index in offsets {
+            let entry = filteredEntries[index]
+            manager.deleteEntry(entry: entry)
         }
     }
 }
