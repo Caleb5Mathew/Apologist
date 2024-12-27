@@ -2,9 +2,8 @@
 //  GuidedJournalingView.swift
 //  Apologist
 //
-//  Created by Caleb Matthews  on 12/17/24.
+//  Created by Caleb Matthews on 12/17/24.
 //
-
 
 import SwiftUI
 import CoreHaptics
@@ -15,11 +14,13 @@ struct GuidedJournalingView: View {
     @State private var showQuestion = false
     @State private var typedText = ""
     @State private var answer = ""
+    @State private var answers: [String] = [] // Stores answers for all questions
     @State private var showExitConfirmation = false
     @State private var currentPage = 1 // Tracks the current page (1, 2, 3, or 4)
     @State private var typewriterTimer: Timer?
     @State private var engine: CHHapticEngine?
     @State private var showBackConfirmation = false // Tracks if back navigation confirmation should be shown
+    @State private var showNextQuestion = false // Controls fade-in visibility of "Next Question >"
 
     private let questions = [
         "What have you been stressing about recently?",
@@ -54,17 +55,6 @@ struct GuidedJournalingView: View {
                     }
 
                     Spacer()
-
-                    if currentPage < questions.count { // Show checkmark except on the last page
-                        Button(action: {
-                            navigateForward()
-                            triggerHapticFeedback(style: .warning)
-                        }) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
@@ -95,9 +85,38 @@ struct GuidedJournalingView: View {
                         .frame(height: 150)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(hex: "#14283A"))
+                                .fill(Color(hex: "#1B3A4B")) // Slightly more contrasted gray
                         )
                         .padding(.horizontal, 20)
+                }
+
+                // Show "Next Question >" for all pages except the last one
+                if currentPage < questions.count {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            navigateForward()
+                            triggerHapticFeedback(style: .success)
+                        }) {
+                            Text("Next Question >")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(showNextQuestion ? Color.white : Color.gray)
+                                .opacity(showNextQuestion ? 1.0 : 0.0) // Fade-in effect
+                        }
+                        .disabled(!showNextQuestion) // Prevent clicking before fade-in completes
+                        .offset(y: showNextQuestion ? 0 : 20) // Start slightly higher, then animate down
+                        .animation(.easeInOut(duration: 1.0), value: showNextQuestion)
+                        Spacer()
+                    }
+                    .padding(.top, 10)
+                    .onAppear {
+                        // Trigger fade-in animation with color and position change
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            withAnimation {
+                                showNextQuestion = true
+                            }
+                        }
+                    }
                 }
 
                 Spacer()
@@ -121,6 +140,7 @@ struct GuidedJournalingView: View {
         .onAppear {
             fadeInBackground()
             prepareHaptics()
+            resetForNewPage() // Trigger reset for the first page
         }
         .navigationBarHidden(true)
         .confirmationDialog("", isPresented: $showExitConfirmation) {
@@ -161,9 +181,14 @@ struct GuidedJournalingView: View {
 
     private func saveCurrentPageAndNavigateBack() {
         if !answer.isEmpty {
+            answers.append("Q\(currentPage): \(questions[currentPage - 1])\nA: \(answer)")
+        }
+
+        if !answers.isEmpty {
+            let fullEntry = answers.joined(separator: "\n\n")
             journalManager.addEntry(
-                title: "Guided Journaling - Page \(currentPage) - \(formattedDate())",
-                content: answer,
+                title: "Guided Journaling - \(formattedDate())",
+                content: fullEntry,
                 type: "Guided Journaling"
             )
         }
@@ -172,26 +197,40 @@ struct GuidedJournalingView: View {
 
     private func navigateToJournalHome() {
         presentationMode.wrappedValue.dismiss()
+        answers.removeAll() // Clear answers after saving or exiting
     }
 
-    // Navigation Forward
     private func navigateForward() {
+        if !answer.isEmpty {
+            answers.append("Q\(currentPage): \(questions[currentPage - 1])\nA: \(answer)")
+            answer = "" // Clear answer field for the next question
+        }
+
         if currentPage < questions.count {
             currentPage += 1
             resetForNewPage()
         }
     }
 
-    // Reset State for New Page
     private func resetForNewPage() {
         typedText = "" // Clear the animated text
         answer = ""
         showQuestion = false // Temporarily hide the question for a smooth transition
+        showNextQuestion = false // Reset fade-in for "Next Question >"
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             // Fade in the new question after a slight delay
             fadeInBackground()
             typewriterEffect(for: questions[currentPage - 1])
+        }
+
+        // Explicitly set `showNextQuestion` for all pages except the last
+        if currentPage < questions.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation {
+                    showNextQuestion = true
+                }
+            }
         }
     }
 
@@ -222,15 +261,20 @@ struct GuidedJournalingView: View {
         }
     }
 
-    // Function to save the response and exit
     private func saveAndExit() {
         if !answer.isEmpty {
+            answers.append("Q\(currentPage): \(questions[currentPage - 1])\nA: \(answer)")
+        }
+
+        if !answers.isEmpty {
+            let fullEntry = answers.joined(separator: "\n\n")
             journalManager.addEntry(
-                title: "Guided Journaling - Page \(currentPage) - \(formattedDate())",
-                content: answer,
-                type: "Guided Journaling" // Make sure this matches exactly with the tab tag
+                title: "Guided Journaling - \(formattedDate())",
+                content: fullEntry,
+                type: "Guided Journaling"
             )
         }
+
         navigateToJournalHome()
     }
 
