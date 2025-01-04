@@ -21,6 +21,7 @@ struct GuidedJournalingView: View {
     @State private var engine: CHHapticEngine?
     @State private var showBackConfirmation = false // Tracks if back navigation confirmation should be shown
     @State private var showNextQuestion = false // Controls fade-in visibility of "Next Question >"
+    @State private var showSaveAndExitAlert = false // State for showing the Save and Exit confirmation
 
     private let questions = [
         "What have you been stressing about recently?",
@@ -41,10 +42,12 @@ struct GuidedJournalingView: View {
                 HStack {
                     Button(action: {
                         if !answer.isEmpty || currentPage > 1 {
-                            showBackConfirmation = true
+                            showSaveAndExitAlert = true
                         } else {
                             navigateBack()
                         }
+
+
                     }) {
                         HStack {
                             Image(systemName: "chevron.left")
@@ -143,6 +146,17 @@ struct GuidedJournalingView: View {
             resetForNewPage() // Trigger reset for the first page
         }
         .navigationBarHidden(true)
+        .alert("You have unsaved changes.", isPresented: $showSaveAndExitAlert, actions: {
+            Button("Exit", role: .destructive) {
+                navigateToJournalHome() // Discard changes and exit
+            }
+            Button("Save and Exit", role: .cancel) {
+                saveAndExit() // Save changes and exit
+            }
+        }, message: {
+            Text("Would you like to save your progress before going back?")
+        })
+
         .confirmationDialog("", isPresented: $showExitConfirmation) {
             Button("Exit", role: .destructive) {
                 navigateToJournalHome()

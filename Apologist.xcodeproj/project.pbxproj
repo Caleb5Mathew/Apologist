@@ -51,7 +51,21 @@
 		2404FAA82D0778DB0020CC4C /* CustomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA882D0778DB0020CC4C /* CustomErrors.swift */; };
 		2404FAA92D0778DB0020CC4C /* CompleteHabitIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA892D0778DB0020CC4C /* CompleteHabitIntent.swift */; };
 		2404FAAE2D077A2E0020CC4C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FAAD2D077A2E0020CC4C /* ContentView.swift */; };
+		24A5C3B72D11EE7B00F2416A /* JournalHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */; };
+		24A5C3B92D11EE9400F2416A /* FreewriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3B82D11EE9400F2416A /* FreewriteView.swift */; };
+		24A5C3BB2D11EEA800F2416A /* GuidedJournalingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */; };
+		24A5C3BE2D11F1D700F2416A /* ApologistApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3BC2D11F1D700F2416A /* ApologistApp.xcdatamodeld */; };
+		24A5C3CC2D1204B700F2416A /* FreewriteHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3CB2D1204B700F2416A /* FreewriteHistoryView.swift */; };
+		24A5C3CE2D12080A00F2416A /* JournalingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3CD2D12080A00F2416A /* JournalingHistoryView.swift */; };
+		24A5C3D22D1611A300F2416A /* HomeScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3D12D1611A300F2416A /* HomeScreenView.swift */; };
+		24A5C4222D1D04A300F2416A /* JournalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C4212D1D04A300F2416A /* JournalDetailView.swift */; };
+		24A5C4242D1F32E000F2416A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24A5C4232D1F32E000F2416A /* GoogleService-Info.plist */; };
 		24BAA5472D0A88C60084D787 /* StatusBarStyleModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5462D0A88C60084D787 /* StatusBarStyleModifier.swift */; };
+		24BAA5492D10C6270084D787 /* StatusBarStyleWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */; };
+		24BAA5612D113F5F0084D787 /* JournalEntryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5602D113F5F0084D787 /* JournalEntryManager.swift */; };
+		24E6B1F52D2218FE009CF258 /* JournalEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E6B1F42D2218FE009CF258 /* JournalEditView.swift */; };
+		24E6B1F72D2473CF009CF258 /* SecureDictionaryTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E6B1F62D2473CF009CF258 /* SecureDictionaryTransformer.swift */; };
+		24E6B1FA2D288F96009CF258 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E6B1F92D288F96009CF258 /* NotificationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,7 +137,21 @@
 		2404FA892D0778DB0020CC4C /* CompleteHabitIntent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompleteHabitIntent.swift; sourceTree = "<group>"; };
 		2404FAAD2D077A2E0020CC4C /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2404FAAF2D077CCE0020CC4C /* Apologist.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Apologist.entitlements; sourceTree = "<group>"; };
+		24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalHomeView.swift; sourceTree = "<group>"; };
+		24A5C3B82D11EE9400F2416A /* FreewriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreewriteView.swift; sourceTree = "<group>"; };
+		24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedJournalingView.swift; sourceTree = "<group>"; };
+		24A5C3BD2D11F1D700F2416A /* ApologistApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ApologistApp.xcdatamodel; sourceTree = "<group>"; };
+		24A5C3CB2D1204B700F2416A /* FreewriteHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreewriteHistoryView.swift; sourceTree = "<group>"; };
+		24A5C3CD2D12080A00F2416A /* JournalingHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalingHistoryView.swift; sourceTree = "<group>"; };
+		24A5C3D12D1611A300F2416A /* HomeScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenView.swift; sourceTree = "<group>"; };
+		24A5C4212D1D04A300F2416A /* JournalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalDetailView.swift; sourceTree = "<group>"; };
+		24A5C4232D1F32E000F2416A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		24BAA5462D0A88C60084D787 /* StatusBarStyleModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarStyleModifier.swift; sourceTree = "<group>"; };
+		24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarStyleWrapper.swift; sourceTree = "<group>"; };
+		24BAA5602D113F5F0084D787 /* JournalEntryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntryManager.swift; sourceTree = "<group>"; };
+		24E6B1F42D2218FE009CF258 /* JournalEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEditView.swift; sourceTree = "<group>"; };
+		24E6B1F62D2473CF009CF258 /* SecureDictionaryTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureDictionaryTransformer.swift; sourceTree = "<group>"; };
+		24E6B1F92D288F96009CF258 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,12 +202,18 @@
 		2404F9D42D040EE00020CC4C /* Apologist */ = {
 			isa = PBXGroup;
 			children = (
+				24E6B1F82D288F80009CF258 /* Notifications */,
+				24A5C4232D1F32E000F2416A /* GoogleService-Info.plist */,
+				24BAA55F2D113F1C0084D787 /* Journal */,
 				2404FAAF2D077CCE0020CC4C /* Apologist.entitlements */,
 				2404F9D52D040EE00020CC4C /* ApologistApp.swift */,
+				24A5C3BC2D11F1D700F2416A /* ApologistApp.xcdatamodeld */,
+				24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */,
 				2404F9D72D040EE00020CC4C /* APContentView.swift */,
 				2404FA072D0553850020CC4C /* HomePageView.swift */,
 				2404F9FF2D0413630020CC4C /* LandingScreenView.swift */,
 				2404FA012D0413870020CC4C /* MainAppView.swift */,
+				24A5C3D12D1611A300F2416A /* HomeScreenView.swift */,
 				2404FA052D04E8CA0020CC4C /* ComingSoonView.swift */,
 				2404FA822D0778DA0020CC4C /* Assets.xcassets */,
 				2404FA662D0778D90020CC4C /* Configuration */,
@@ -327,6 +361,30 @@
 			path = Shortcuts;
 			sourceTree = "<group>";
 		};
+		24BAA55F2D113F1C0084D787 /* Journal */ = {
+			isa = PBXGroup;
+			children = (
+				24BAA5602D113F5F0084D787 /* JournalEntryManager.swift */,
+				24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */,
+				24A5C3B82D11EE9400F2416A /* FreewriteView.swift */,
+				24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */,
+				24A5C3CB2D1204B700F2416A /* FreewriteHistoryView.swift */,
+				24E6B1F62D2473CF009CF258 /* SecureDictionaryTransformer.swift */,
+				24A5C3CD2D12080A00F2416A /* JournalingHistoryView.swift */,
+				24A5C4212D1D04A300F2416A /* JournalDetailView.swift */,
+				24E6B1F42D2218FE009CF258 /* JournalEditView.swift */,
+			);
+			path = Journal;
+			sourceTree = "<group>";
+		};
+		24E6B1F82D288F80009CF258 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				24E6B1F92D288F96009CF258 /* NotificationManager.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -416,6 +474,8 @@
 				uk,
 			);
 			mainGroup = 2404F9C92D040EE00020CC4C;
+			packageReferences = (
+			);
 			productRefGroup = 2404F9D32D040EE00020CC4C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -434,6 +494,7 @@
 			files = (
 				2404FA972D0778DB0020CC4C /* Preview Assets.xcassets in Resources */,
 				2404F9DD2D040EE20020CC4C /* Preview Assets.xcassets in Resources */,
+				24A5C4242D1F32E000F2416A /* GoogleService-Info.plist in Resources */,
 				2404FA8E2D0778DB0020CC4C /* Localizable.stringsdict in Resources */,
 				2404FA902D0778DB0020CC4C /* Preview Assets.xcassets in Resources */,
 				2404FA8D2D0778DB0020CC4C /* Localizable.strings in Resources */,
@@ -470,34 +531,47 @@
 				2404FA942D0778DB0020CC4C /* Habit+Utils.swift in Sources */,
 				2404FA9B2D0778DB0020CC4C /* ChartView.swift in Sources */,
 				2404FAA62D0778DB0020CC4C /* HapticController.swift in Sources */,
+				24A5C3B72D11EE7B00F2416A /* JournalHomeView.swift in Sources */,
 				2404FAA82D0778DB0020CC4C /* CustomErrors.swift in Sources */,
 				2404FA8A2D0778DB0020CC4C /* Date+Ext.swift in Sources */,
 				2404FA042D0413A10020CC4C /* QuestionView.swift in Sources */,
 				2404FA9C2D0778DB0020CC4C /* HabitListView.swift in Sources */,
+				24BAA5492D10C6270084D787 /* StatusBarStyleWrapper.swift in Sources */,
 				2404FAA02D0778DB0020CC4C /* HabitRowView.swift in Sources */,
 				2404FA9F2D0778DB0020CC4C /* HeaderView.swift in Sources */,
 				2404FA932D0778DB0020CC4C /* HabitColor.swift in Sources */,
+				24A5C4222D1D04A300F2416A /* JournalDetailView.swift in Sources */,
 				2404FA9E2D0778DB0020CC4C /* ColorsPickerView.swift in Sources */,
 				2404FAA12D0778DB0020CC4C /* EditHabitView.swift in Sources */,
+				24A5C3D22D1611A300F2416A /* HomeScreenView.swift in Sources */,
 				2404F9D82D040EE00020CC4C /* APContentView.swift in Sources */,
 				2404FAA72D0778DB0020CC4C /* ShortcutsHabitEntity.swift in Sources */,
 				2404FAA52D0778DB0020CC4C /* DataController.swift in Sources */,
 				2404FA922D0778DB0020CC4C /* Habit+CoreDataHelpers.swift in Sources */,
+				24A5C3CC2D1204B700F2416A /* FreewriteHistoryView.swift in Sources */,
 				2404FA0A2D0684500020CC4C /* ClaudeAPI.swift in Sources */,
 				2404FA022D0413870020CC4C /* MainAppView.swift in Sources */,
 				2404F9D62D040EE00020CC4C /* ApologistApp.swift in Sources */,
 				2404FA9D2D0778DB0020CC4C /* SortMenuView.swift in Sources */,
+				24E6B1F72D2473CF009CF258 /* SecureDictionaryTransformer.swift in Sources */,
+				24E6B1F52D2218FE009CF258 /* JournalEditView.swift in Sources */,
 				2404FA8F2D0778DB0020CC4C /* Habit.xcdatamodeld in Sources */,
 				2404FAAE2D077A2E0020CC4C /* ContentView.swift in Sources */,
 				2404FA912D0778DB0020CC4C /* Constants.swift in Sources */,
+				24A5C3BE2D11F1D700F2416A /* ApologistApp.xcdatamodeld in Sources */,
 				2404FA9A2D0778DB0020CC4C /* TipView.swift in Sources */,
 				2404FAA32D0778DB0020CC4C /* CalendarView.swift in Sources */,
+				24A5C3B92D11EE9400F2416A /* FreewriteView.swift in Sources */,
+				24BAA5612D113F5F0084D787 /* JournalEntryManager.swift in Sources */,
 				2404FA062D04E8CA0020CC4C /* ComingSoonView.swift in Sources */,
 				2404FA8C2D0778DB0020CC4C /* View+Ext.swift in Sources */,
+				24A5C3CE2D12080A00F2416A /* JournalingHistoryView.swift in Sources */,
 				2404FA082D0553850020CC4C /* HomePageView.swift in Sources */,
+				24E6B1FA2D288F96009CF258 /* NotificationManager.swift in Sources */,
 				2404FA002D0413630020CC4C /* LandingScreenView.swift in Sources */,
 				2404FA8B2D0778DB0020CC4C /* Color+Ext.swift in Sources */,
 				2404FAA92D0778DB0020CC4C /* CompleteHabitIntent.swift in Sources */,
+				24A5C3BB2D11EEA800F2416A /* GuidedJournalingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -850,6 +924,16 @@
 			);
 			currentVersion = 2404FA682D0778D90020CC4C /* Habit.xcdatamodel */;
 			path = Habit.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		24A5C3BC2D11F1D700F2416A /* ApologistApp.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				24A5C3BD2D11F1D700F2416A /* ApologistApp.xcdatamodel */,
+			);
+			currentVersion = 24A5C3BD2D11F1D700F2416A /* ApologistApp.xcdatamodel */;
+			path = ApologistApp.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

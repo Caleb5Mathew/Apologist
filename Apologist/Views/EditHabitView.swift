@@ -197,28 +197,66 @@ struct EditHabitView: View {
                 habit.title = title
                 habit.motivation = motivation
                 habit.color = color
-                habit.regularity = regularity // Save regularity
+                habit.regularity = regularity
             } else {
                 let newHabit = Habit(context: managedObjectContext)
                 newHabit.title = title
                 newHabit.motivation = motivation
                 newHabit.color = color
-                newHabit.regularity = regularity // Set regularity
+                newHabit.regularity = regularity
                 newHabit.creationDate = Date()
             }
             dataController.save()
+
+            // Fetch and print the total number of habits
+            let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
+            do {
+                let totalHabits = try managedObjectContext.fetch(fetchRequest).count
+                print("Total Habits: \(totalHabits)")
+
+                if totalHabits >= 2 {
+                    print("Scheduling notifications for 2 or more habits.")
+                    NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
+                } else {
+                    print("Not enough habits to trigger notifications.")
+                }
+            } catch {
+                print("Error fetching habits: \(error.localizedDescription)")
+            }
+
+            // Always check and schedule notifications after saving
+            NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
         }
     }
+
+
+
+
+
 
     func delete() {
         withAnimation {
             if let habit {
                 dataController.delete(habit)
                 dataController.save()
+
+                // Fetch and print the total number of habits
+                let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
+                do {
+                    let totalHabits = try managedObjectContext.fetch(fetchRequest).count
+                    print("Total Habits: \(totalHabits)")
+                } catch {
+                    print("Error fetching habits: \(error.localizedDescription)")
+                }
+
+                // Schedule notifications after deleting
+                NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
             }
         }
         dismiss()
     }
+
+
 
     func prepareHaptics() {
         do {

@@ -1,5 +1,7 @@
 import SwiftUI
 
+import SwiftUI
+
 // MARK: - CalendarViewTwo (Marks Journaled Days)
 struct CalendarViewTwo: UIViewRepresentable {
     let dateInterval: DateInterval
@@ -15,7 +17,7 @@ struct CalendarViewTwo: UIViewRepresentable {
         dateSelection.setSelectedDates(completedDates, animated: true)
         calendarView.selectionBehavior = dateSelection
 
-        // Styling for a white calendar with rounded corners
+        // Styling for a standout calendar with highlighted dates
         calendarView.backgroundColor = .clear
         calendarView.tintColor = UIColor(tintColor)
 
@@ -148,7 +150,7 @@ struct JournalHomeView: View {
 
                 // MARK: - Progress Text
                 Spacer().frame(height: 16) // Added to move progress text down slightly
-                Text("JOURNALING PROGRESS")
+                Text("DAYS JOURNALED") // Updated label
                     .font(.system(size: 14, weight: .bold))
                     .kerning(1.5)
                     .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
@@ -160,13 +162,16 @@ struct JournalHomeView: View {
                 CalendarViewTwo(
                     dateInterval: DateInterval(start: Calendar.current.date(byAdding: .year, value: -1, to: Date())!, end: Date()),
                     completedDates: $journaledDates,
-                    tintColor: Color.white // White Calendar
+                    tintColor: Color(hex: "#F8C471") // Matches "DAYS JOURNALED" text color
                 )
                 .frame(height: 180) // Smaller calendar size
-                .scaleEffect(0.9) // Reduced scale
+                .scaleEffect(1.0) // Slightly larger scale
                 .padding(.top, 40) // Move calendar further down
                 .onAppear {
                     updateJournaledDates()
+                }
+                .onChange(of: manager.entries) { _ in
+                    updateJournaledDates() // Automatically refreshes when entries change
                 }
 
                 Spacer()

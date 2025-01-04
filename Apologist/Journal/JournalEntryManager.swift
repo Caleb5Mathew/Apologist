@@ -1,11 +1,3 @@
-//
-//  ournalEntryManager.swift
-//  Apologist
-//
-//  Created by Caleb Matthews  on 12/16/24.
-//
-
-
 import Foundation
 import CoreData
 import SwiftUI
@@ -23,12 +15,22 @@ class JournalEntryManager: ObservableObject {
                 print("Error loading Core Data: \(error)")
             }
         }
+        registerTransformers()
         fetchEntries()
+    }
+
+    private func registerTransformers() {
+        // Register the secure transformer
+        ValueTransformer.setValueTransformer(
+            NSSecureUnarchiveFromDataTransformer(),
+            forName: NSValueTransformerName("NSSecureUnarchiveFromData")
+        )
     }
 
     // Fetch all entries from Core Data
     func fetchEntries() {
         let request: NSFetchRequest<JournalEntri> = JournalEntri.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)] // Sort by date, newest first
         do {
             entries = try container.viewContext.fetch(request)
         } catch {
@@ -50,15 +52,14 @@ class JournalEntryManager: ObservableObject {
         fetchEntries()
     }
 
-    func updateEntry(entry: JournalEntri, newContent: String? = nil, newQuestionsAndAnswers: [String: String]? = nil) {
-        if let newContent = newContent {
-            entry.content = newContent
+    func updateEntry(entry: JournalEntri, newTitle: String? = nil, newQuestionsAndAnswers: [String: String]? = nil) {
+        if let newTitle = newTitle {
+            entry.title = newTitle
         }
         if let newQuestionsAndAnswers = newQuestionsAndAnswers {
             entry.questionsAndAnswers = NSDictionary(dictionary: newQuestionsAndAnswers)
         }
         saveContext()
-        fetchEntries()
     }
 
 
@@ -72,12 +73,13 @@ class JournalEntryManager: ObservableObject {
     // Save Core Data context
     func saveContext() {
         do {
-            try container.viewContext.save()
+            if container.viewContext.hasChanges {
+                try container.viewContext.save()
+            }
         } catch {
             print("Error saving to Core Data: \(error)")
         }
     }
-
 
     // Set the current entry (used for guided journaling)
     func setCurrentEntry(_ entry: JournalEntri) {
@@ -90,24 +92,14 @@ class JournalEntryManager: ObservableObject {
     }
 
     // Save the current guided journaling progress
-    func saveCurrentGuidedProgress(
-        question: String,
-        answer: String
-    ) {
+    func saveCurrentGuidedProgress(question: String, answer: String) {
         guard let currentEntry = currentEntry else { return }
 
-        // Safely cast questionsAndAnswers to a Swift dictionary or start with an empty one
         var updatedQuestionsAndAnswers = (currentEntry.questionsAndAnswers as? [String: String]) ?? [:]
-
-        // Update the dictionary with the new question and answer
         updatedQuestionsAndAnswers[question] = answer
 
-        // Convert the Swift dictionary back to NSDictionary and assign it to the Core Data property
         currentEntry.questionsAndAnswers = NSDictionary(dictionary: updatedQuestionsAndAnswers)
-
-        // Save the changes to Core Data
         saveContext()
         fetchEntries()
-
     }
 }

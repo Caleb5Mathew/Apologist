@@ -54,7 +54,7 @@ struct JournalingHistoryView: View {
                 } else {
                     List {
                         ForEach(filteredEntries) { entry in
-                            NavigationLink(destination: JournalDetailView(entry: entry)) {
+                            NavigationLink(destination: JournalDetailView(entry: entry, manager: manager)) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(entry.title ?? "Untitled")
                                         .font(.headline)

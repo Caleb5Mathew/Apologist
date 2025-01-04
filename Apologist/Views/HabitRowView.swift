@@ -5,6 +5,11 @@
 //  Created by Nazarii Zomko on 15.05.2023.
 //
 
+//
+//  HabitRowView.swift
+//  Habit
+//
+
 import SwiftUI
 
 struct HabitRowView: View {
@@ -13,12 +18,11 @@ struct HabitRowView: View {
     @EnvironmentObject var dataController: DataController
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.colorScheme) var colorScheme
-    
+
     var body: some View {
         ZStack(alignment: .top) {
             Color(hex: "#d4d4d4") // Light gray background
                 .onTapGesture {
-                    isPresentingEditHabitView = true
                     isPresentingEditHabitView = true
                 }
                 .clipShape(
@@ -29,27 +33,31 @@ struct HabitRowView: View {
                         .stroke(Color.white, lineWidth: 3) // Black border
                 )
                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 4) // Soft drop shadow
-            VStack(spacing: -8) {
-                HStack() {
+            
+            VStack(spacing: 10) { // Adjusted spacing
+                HStack(alignment: .top) {
                     percentageView
+                        .padding(.leading, -6) // Align the percentage with the start of the habit title
+                        .padding(.top, 4) // Scoot percentage circle slightly upward
                     Spacer()
                     checkmarksView
                         .padding(.trailing, 10)
+                        .padding(.top, 2) // Scoot checkmarks upward slightly
                 }
+
                 .padding(.leading, 22)
-                .padding(.top, 12)
-                VStack {
-                    HStack {
-                        habitTitle
-                            .padding(.horizontal, 22)
-                            .allowsHitTesting(false)
-                        Spacer()
-                    }
+                
+                HStack {
+                    habitTitle
+                        .padding(.horizontal, 22)
+                        .padding(.top, -9) // Add spacing between the title and percentage
+                        .allowsHitTesting(false)
+                    Spacer()
                 }
-                .frame(maxHeight: .infinity)
             }
+            .frame(maxHeight: .infinity, alignment: .top) // Align everything at the top
         }
-        .frame(height: 100)
+        .frame(height: 100) // Increased height slightly
         .clipShape(
             RoundedRectangle(cornerRadius: 13, style: .continuous)
         )
@@ -89,19 +97,23 @@ struct HabitRowView: View {
 
     var progress: Double {
         guard let regularity = habit.regularity?.lowercased() else { return 0.0 }
-        
-        // Get the last 7 days
+
         let calendar = Calendar.current
         let today = Date()
         let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: today)!
 
-        // Count completed dates in the last 7 days
-        let recentCompletedDates = habit.completedDates.filter { completedDate in
-            completedDate >= sevenDaysAgo && completedDate <= today
-        }
-        let completedCount = recentCompletedDates.count
+        // Debug: Print all completedDates
+        print("Completed Dates: \(habit.completedDates)")
 
-        // Calculate progress based on regularity
+        let recentCompletedDates = habit.completedDates.filter { completedDate in
+            let isInRange = completedDate >= sevenDaysAgo && completedDate <= today
+            print("Checking date \(completedDate): \(isInRange)")
+            return isInRange
+        }
+
+        let completedCount = recentCompletedDates.count
+        print("Completed Count: \(completedCount)")
+
         switch regularity {
         case "everyday":
             return Double(completedCount) / 7.0
@@ -125,29 +137,43 @@ struct HabitRowView: View {
     }
 
     var percentageView: some View {
-        let progressPercentage = min(Int(progress * 100), 100)
+        let progressPercentage = min(Int(progress * 100), 100) // Limit to 100%
+        let scaledPercentage = min(progress * 1.3, 1.3) // Scale up to 130% when progress is 100%
 
-        return Text("\(progressPercentage)%")
-            .font(.system(size: 11, weight: .medium))
-            .foregroundColor(.black)
-            .background(
-                Circle()
-                    .stroke(style: StrokeStyle(lineWidth: CGFloat(progressPercentage) * progressMultiplier)) // Dynamically calculate the stroke width
-                    .background(Circle().fill(Color(habit.color))) // Stroke and fill the circle
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(Color(habit.color))
-                    .offset(x: -0.5)
-            )
+        return ZStack {
+            Circle()
+                .fill(Color(habit.color))
+                .frame(width: 35, height: 35)
+
+            Circle()
+                .stroke(style: StrokeStyle(lineWidth: CGFloat(progressPercentage) * progressMultiplier))
+                .foregroundColor(Color(habit.color))
+                .frame(width: CGFloat(30 * scaledPercentage), height: CGFloat(30 * scaledPercentage))
+
+            Text("\(progressPercentage)%")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.black)
+        }
+        .frame(width: 50, height: 50)
+        .alignmentGuide(.top) { _ in 0 }
     }
 
     var checkmarksView: some View {
         HStack(spacing: 0) {
-            ForEach(0..<7) { number in // Updated to show 7 days
-                let daysAgo = abs(number - 6) // Adjust for 7 days in reverse order
+            ForEach(0..<7) { dayIndex in
+                let daysAgo = 6 - dayIndex
+
                 Button {
                     toggleCompletion(daysAgo: daysAgo)
                 } label: {
-                    let isCompleted = habit.isCompleted(daysAgo: daysAgo)
+                    let calendar = Calendar.current
+                    let today = Date()
+                    let dateForCheck = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+
+                    let isCompleted = habit.completedDates.contains { completedDate in
+                        calendar.isDate(completedDate, inSameDayAs: dateForCheck)
+                    }
+
                     Image(isCompleted ? "checkmark" : "circle")
                         .resizable()
                         .foregroundColor(.black)
@@ -162,11 +188,11 @@ struct HabitRowView: View {
 
     var habitTitle: some View {
         Text(habit.title ?? "")
-            .font(.system(size: 16,  weight: .semibold)) // Bold title
+            .font(.system(size: 16, weight: .semibold))
             .foregroundColor(.black)
             .if(colorScheme == .dark) { $0.shadow(radius: 1) }
     }
-    
+
     func toggleCompletion(daysAgo: Int) {
         habit.toggleCompletion(daysAgo: daysAgo)
         HapticController.shared.impact(style: .soft)
@@ -181,4 +207,3 @@ struct HabitRowView_Previews: PreviewProvider {
             .padding()
     }
 }
-
