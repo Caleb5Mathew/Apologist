@@ -138,7 +138,7 @@ struct HabitRowView: View {
 
     var percentageView: some View {
         let progressPercentage = min(Int(progress * 100), 100) // Limit to 100%
-        let scaledPercentage = min(progress * 1.3, 1.3) // Scale up to 130% when progress is 100%
+        let scaledPercentage = min(progress * 1.8, 1.8) // Scale up to 130% when progress is 100%
 
         return ZStack {
             Circle()
