@@ -166,7 +166,7 @@ struct JournalHomeView: View {
                 )
                 .frame(height: 180) // Smaller calendar size
                 .scaleEffect(1.0) // Slightly larger scale
-                .padding(.top, 40) // Move calendar further down
+                .padding(.top, 55) // Move calendar further down
                 .onAppear {
                     updateJournaledDates()
                 }

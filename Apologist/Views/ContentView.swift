@@ -5,6 +5,13 @@
 //  Created by Nazarii Zomko on 13.05.2023.
 //
 
+//
+//  ContentView.swift
+//  Habit
+//
+//  Created by Nazarii Zomko on 13.05.2023.
+//
+
 import SwiftUI
 
 struct ContentView: View {
@@ -39,10 +46,10 @@ struct ContentView: View {
                 )
                 .ignoresSafeArea()
 
-                .ignoresSafeArea() // Cover safe area, including behind the navigation bar
-
                 VStack(spacing: 0) {
                     Divider()
+                        .padding(.top, 10) // Add padding above the divider to scoot it down
+
                         .background(
                             VStack {
                                 LinearGradient(
@@ -60,16 +67,20 @@ struct ContentView: View {
                             .ignoresSafeArea(edges: .top) // Ensure it extends fully to the top
                         )
 
+                    // HeaderView remains at the top
+                    HeaderView(
+                        onAddHabit: {
+                            isPresentingEditHabitView = true
+                        },
+                        onSortOptionChanged: { newSortOption, isAscending in
+                            sortingOption = newSortOption
+                            isSortingOrderAscending = isAscending
+                        }
+                    )
 
-
-
-                    HeaderView()
+                    // Habit List View
                     HabitListView(sortingOption: sortingOption, isSortingOrderAscending: isSortingOrderAscending)
                 }
-            }
-            .toolbar {
-                addHabitToolbarItem
-                sortMenuToolbarItem
             }
             .sheet(isPresented: $isPresentingEditHabitView) {
                 EditHabitView(habit: nil)
@@ -77,41 +88,5 @@ struct ContentView: View {
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent behavior across devices
         .modifier(StatusBarStyleModifier(style: .lightContent))
-    }
-
-    var addHabitToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                isPresentingEditHabitView = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 19).weight(.light))
-                    .tint(Color(hex: "#F8C471")) // Star Glow Yellow
-            }
-            .accessibilityLabel("Add Habit")
-            .accessibilityIdentifier("addHabit")
-        }
-    }
-
-    var sortMenuToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            SortMenuView(selectedSortingOption: $sortingOption, isSortingOrderAscending: $isSortingOrderAscending)
-                .tint(Color(hex: "#D4DDE1")) // Moonlight Silver
-        }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-            .environment(\.managedObjectContext, DataController.preview.container.viewContext)
-            .previewDevice(PreviewDevice(rawValue: "iPhone 14 Pro Max"))
-            .previewDisplayName("iPhone 14 Pro Max")
-            .environment(\.locale, .init(identifier: "uk"))
-
-        ContentView()
-            .environment(\.managedObjectContext, DataController.preview.container.viewContext)
-            .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
-            .previewDisplayName("iPhone SE (3rd generation)")
     }
 }

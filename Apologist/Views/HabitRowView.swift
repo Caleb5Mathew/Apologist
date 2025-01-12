@@ -23,8 +23,11 @@ struct HabitRowView: View {
         ZStack(alignment: .top) {
             Color(hex: "#d4d4d4") // Light gray background
                 .onTapGesture {
-                    isPresentingEditHabitView = true
+                    if !isPresentingEditHabitView {
+                        isPresentingEditHabitView = true
+                    }
                 }
+
                 .clipShape(
                     RoundedRectangle(cornerRadius: 13, style: .continuous) // Rounded corners
                 )
@@ -63,7 +66,10 @@ struct HabitRowView: View {
         )
         .sheet(isPresented: $isPresentingEditHabitView) {
             DetailView(habit: habit)
+                .environmentObject(dataController) // Pass environment object
         }
+
+
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(habit.title), \(habit.strengthPercentage)% strength, \(habit.isCompleted(daysAgo: 0) ? "completed" : "not completed") for today.")
         .accessibilityAction(named: "Toggle completion for today") {

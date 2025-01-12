@@ -4,6 +4,8 @@ import CoreData
 
 /// Handles habit-related notifications.
 struct NotificationManager {
+    static var lastNotificationType: String? // Keeps track of the last sent notification type.
+
     static func checkAndScheduleNotifications(context: NSManagedObjectContext) {
         do {
             let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
@@ -38,12 +40,12 @@ struct NotificationManager {
                     print("Scheduling daily notifications.")
                     scheduleDailyNotification()
                 } else {
-                    print("No recent completions for habits. Scheduling every-other-day notifications with alternating messages.")
-                    scheduleAlternateMessagesNotification()
+                    print("No recent completions for habits. Scheduling alternating notifications.")
+                    scheduleAlternatingNotification()
                 }
             } else {
-                print("Less than 2 habits. Scheduling every-other-day notifications with alternating messages.")
-                scheduleAlternateMessagesNotification()
+                print("Less than 2 habits. Scheduling alternating notifications.")
+                scheduleAlternatingNotification()
             }
         } catch {
             print("Error fetching habits: \(error.localizedDescription)")
@@ -75,48 +77,36 @@ struct NotificationManager {
         }
     }
 
-    /// Schedules every-other-day notifications with alternating messages.
-    private static func scheduleAlternateMessagesNotification() {
+    /// Schedules alternating notifications: journaling and question prompts.
+    private static func scheduleAlternatingNotification() {
         let center = UNUserNotificationCenter.current()
 
-        // First notification message
-        let content1 = UNMutableNotificationContent()
-        content1.title = "Reflect and Explore"
-        content1.body = "Got any questions about God? We'll help you answer them!"
-        content1.sound = .default
+        // Determine the notification type based on the last sent type
+        let isQuestionNotification = (lastNotificationType != "question")
 
-        // Second notification message
-        let content2 = UNMutableNotificationContent()
-        content2.title = "Take a Moment to Reflect"
-        content2.body = "Writing down your thoughts helps you process and understand them, Journal here about your day for a bit."
-        content2.sound = .default
-
-        // Schedule the first notification
-        var dateComponents1 = DateComponents()
-        dateComponents1.hour = 9 // First notification at 9 AM
-        let trigger1 = UNCalendarNotificationTrigger(dateMatching: dateComponents1, repeats: true)
-
-        let request1 = UNNotificationRequest(identifier: UUID().uuidString, content: content1, trigger: trigger1)
-        center.add(request1) { error in
-            if let error = error {
-                print("Error scheduling first alternating notification: \(error.localizedDescription)")
-            } else {
-                print("First alternating notification scheduled.")
-            }
+        let content = UNMutableNotificationContent()
+        if isQuestionNotification {
+            content.title = "Reflect and Explore"
+            content.body = "Got any questions about God? We'll help you answer them!"
+            lastNotificationType = "question"
+        } else {
+            content.title = "Take a Moment to Reflect"
+            content.body = "Writing down your thoughts helps you process and understand them. Journal here about your day!"
+            lastNotificationType = "journaling"
         }
+        content.sound = .default
 
-        // Schedule the second notification on alternating days
-        var dateComponents2 = DateComponents()
-        dateComponents2.hour = 9
-        dateComponents2.day = Calendar.current.component(.day, from: Date()) % 2 == 0 ? nil : 1 // Alternate day logic
-        let trigger2 = UNCalendarNotificationTrigger(dateMatching: dateComponents2, repeats: true)
+        // Schedule at 9 AM
+        var dateComponents = DateComponents()
+        dateComponents.hour = 9
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
 
-        let request2 = UNNotificationRequest(identifier: UUID().uuidString, content: content2, trigger: trigger2)
-        center.add(request2) { error in
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        center.add(request) { error in
             if let error = error {
-                print("Error scheduling second alternating notification: \(error.localizedDescription)")
+                print("Error scheduling alternating notification: \(error.localizedDescription)")
             } else {
-                print("Second alternating notification scheduled.")
+                print("\(lastNotificationType?.capitalized ?? "Notification") notification scheduled.")
             }
         }
     }

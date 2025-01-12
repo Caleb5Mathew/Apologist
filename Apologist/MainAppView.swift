@@ -1,3 +1,4 @@
+
 //
 //  MainAppView.swift
 //  Apologist
@@ -11,109 +12,145 @@ struct MainAppView: View {
     @State private var userInput: String = ""
     @State private var messages: [Message] = []
     @State private var isTyping: Bool = false
-    @State private var selectedTab: Int = 2 // Default to "Home" tab
+    @State private var selectedTab: Int = 2 // Default to "Ask" tab
     @State private var showCursor: Bool = false
     @State private var disableAutoscroll: Bool = false // Tracks whether autoscroll is disabled manually
     @State private var userInteracted: Bool = false // Tracks if the user interacted during this session
-
-
-
+    @State private var showSidebar: Bool = false
+    @State private var isPresentingEditHabitView = false
+    @State private var sortingOption: SortingOption = .byDate
+    @State private var isSortingOrderAscending: Bool = false
 
     var body: some View {
-        
-        NavigationView {
-            VStack(spacing: 0) {
-                if selectedTab == 0 {
-                    HomeScreenView(selectedTab: $selectedTab) // Pass the binding
+        ZStack {
+            NavigationView {
+                VStack(spacing: 0) {
+                    HStack {
+                        // Menu Button
+                        Button(action: {
+                            withAnimation {
+                                showSidebar.toggle()
+                            }
+                        }) {
+                            Image(systemName: "line.horizontal.3")
+                                .font(.system(size: 22))
+                                .foregroundColor(.white)
+                        }
+                        .frame(width: 45, height: 45)
+                        .padding(.leading, -11)
+
+                        Spacer()
+
+                        // Title
+                        Text("Apologist")
+                            .font(.custom("Georgia", size: 25))
+                            .foregroundColor(Color(hex: "#FFFFFF"))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .offset(x: alignmentOffset()) // Adjust dynamically based on selectedTab
+
+                        Spacer()
+
+                        // Conditionally display Plus Icon and Sort Menu for Habit Page
+                        if selectedTab == 0 {
+                            HStack(spacing: 16) {
+                                // Sort Menu
+                                Menu {
+                                    Picker("Sorting", selection: $sortingOption) {
+                                        ForEach(SortingOption.allCases, id: \.self) { option in
+                                            Text(option.rawValue).tag(option)
+                                        }
+                                    }
+                                    Button(action: {
+                                        isSortingOrderAscending.toggle()
+                                    }) {
+                                        Text("Toggle Sort Order")
+                                    }
+                                } label: {
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(Color(hex: "#D4DDE1"))
+                                }
+
+                                // Plus Icon
+                                Button(action: {
+                                    isPresentingEditHabitView = true
+                                }) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(Color(hex: "#F8C471"))
+                                }
+                                .sheet(isPresented: $isPresentingEditHabitView) {
+                                    EditHabitView(habit: nil)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 0)
+                    .background(Color(hex: "#0B1E30"))
+
+
+
+
+                    .padding(.horizontal, 20) // Adjust horizontal padding
+                    .padding(.top, 0)
+                    .background(Color(hex: "#0B1E30"))
+
+                    currentPage
+                        .highPriorityGesture(
+                            DragGesture(minimumDistance: 20) // Minimum distance to recognize a drag
+                                .onEnded { value in
+                                    // Calculate horizontal and vertical drag amounts
+                                    let horizontalAmount = value.translation.width
+                                    let verticalAmount = value.translation.height
+
+                                    // Detect swipe direction
+                                    if abs(horizontalAmount) > abs(verticalAmount) { // Horizontal swipe
+                                        if horizontalAmount < -50 { // Swipe left
+                                            print("Swipe left detected")
+                                            goToNextPage()
+                                        } else if horizontalAmount > 50 { // Swipe right
+                                            print("Swipe right detected")
+                                            goToPreviousPage()
+                                        } else {
+                                            print("Swipe gesture too short to register")
+                                        }
+                                    } else {
+                                        print("Vertical gesture detected; ignoring")
+                                    }
+                                }
+                        )
+
+
+
+
+
+
+
                 }
-                else if selectedTab == 1 {
-                    JournalHomeView() // Journaling Page
-                } else if selectedTab == 2 {
-                    askQuestionView // "Ask Questions" Page
-                } else if selectedTab == 3 {
-                    ContentView() // "Coming Soon" Page
-                }
-
-
-                // Bottom Tab Bar
-
-                HStack {
-                    Spacer()
-                    Button(action: { selectedTab = 0 }) { // New Home Tab
-                        VStack {
-                            Image(systemName: "square.and.pencil") // New Feedback Icon
-                                .font(.system(size: 24))
-                                .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Feedback")
-                                .font(.system(size: 10))
-                                .foregroundColor(selectedTab == 0 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                        }
-
-
-                    }
-
-                    Spacer()
-                    Button(action: { selectedTab = 1 }) {
-                        VStack {
-                            Image(systemName: "pencil.and.outline")
-                                .font(.system(size: 24))
-                                .foregroundColor(selectedTab == 1 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Journal")
-                                .font(.system(size: 10))
-                                .foregroundColor(selectedTab == 1 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                        }
-                    }
-
-                    Spacer()
-                    Button(action: { selectedTab = 2 }) {
-                        VStack {
-                            Image(systemName: "bubble.left.and.bubble.right.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(selectedTab == 2 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Ask")
-                                .font(.system(size: 10))
-                                .foregroundColor(selectedTab == 2 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                        }
-                    }
-
-                    Spacer()
-                    Button(action: { selectedTab = 3 }) {
-                        VStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(selectedTab == 3 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                            Text("Habits")
-                                .font(.system(size: 10))
-                                .foregroundColor(selectedTab == 3 ? Color(hex: "#1F5F4E") : Color(hex: "#D4DDE1"))
-                        }
-                    }
-                    Spacer()
-                }
-
-                .padding(.vertical, 10)
-                .padding(.horizontal, 30)
-                .background(LinearGradient(
-                    gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#1D4038")]),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                ))
+                .background(Color(hex: "#0B1E30").ignoresSafeArea())
+                .navigationBarHidden(true)
+                .preferredColorScheme(.dark)
             }
-            .background(Color(hex: "#0B1E30").ignoresSafeArea())
-            .navigationBarHidden(true)
-            .preferredColorScheme(.dark)
-        }
-        .navigationViewStyle(StackNavigationViewStyle()) // Forces single-column layout on iPad
+            .navigationViewStyle(StackNavigationViewStyle())
 
+            // Sidebar
+            if showSidebar {
+                SidebarMenu(showSidebar: $showSidebar, onOptionSelected: { option in
+                    handleSidebarSelection(option)
+                })
+                .transition(.move(edge: .leading))
+                .zIndex(1)
+            }
+        }
     }
-    
+
+
+
     
     var askQuestionView: some View {
         VStack(spacing: 0) {
-            // Chat Header
-            Text("Apologist")
-                .font(.custom("Georgia", size: 25))
-                .foregroundColor(Color(hex: "#FFFFFF"))
-                .padding(.bottom, 10)
+
             
 
             // Conditional: Show Suggested Questions if No Messages Exist
@@ -252,6 +289,111 @@ struct MainAppView: View {
         }
 
     }
+
+    
+    var menuButton: some View {
+        Button(action: {
+            withAnimation {
+                showSidebar.toggle()
+            }
+        }) {
+            Image(systemName: "line.horizontal.3")
+                .font(.system(size: 22)) // Keep size smaller
+                .frame(width: 45, height: 45) // Adjust frame size for consistent spacing
+                .foregroundColor(.white)
+        }
+        .padding(.leading, 38) // Reduce leading padding to shift left
+        .padding(.top, 5) // Add padding to shift up
+
+    }
+    @State private var swipeDirection: Edge = .trailing // Track swipe direction
+
+    var currentPage: some View {
+        Group {
+            switch selectedTab {
+            case 0:
+                ContentView() // Habits
+                    .transition(.move(edge: swipeDirection))
+            case 1:
+                askQuestionView // Questions
+                    .transition(.move(edge: swipeDirection))
+            case 2:
+                JournalHomeView() // Journaling
+                    .transition(.move(edge: swipeDirection))
+            case 3:
+                HomeScreenView(selectedTab: $selectedTab) // Feedback
+                    .transition(.move(edge: swipeDirection))
+            case 4:
+                BibleView() // Bible
+                    .transition(.move(edge: swipeDirection)) // Add the BibleView here
+            default:
+                ContentView() // Default to Habits
+                    .transition(.move(edge: swipeDirection))
+            }
+        }
+        .animation(.easeInOut, value: selectedTab) // Animate the transitions
+    }
+
+
+
+
+    private func goToNextPage() {
+        swipeDirection = .trailing
+        withAnimation {
+            selectedTab = (selectedTab + 1) % 5 // Loops back to 0 after 4
+        }
+        print("Navigated to next page: \(selectedTab)")
+    }
+
+    private func goToPreviousPage() {
+        swipeDirection = .leading
+        withAnimation {
+            selectedTab = (selectedTab - 1 + 5) % 5 // Loops back to 4 after 0
+        }
+        print("Navigated to previous page: \(selectedTab)")
+    }
+
+
+
+
+
+
+
+    func alignmentOffset() -> CGFloat {
+        switch selectedTab {
+        case 3: // Feedback Tab
+            return -16 // Adjusted for proper alignment
+        case 0: // Habits Tab
+            return 16 // Adjust to the left slightly
+        case 1, 2: // Questions, Journaling Tabs
+            return -16.5 // Adjust to the left slightly
+        case 4: // Bible Tab
+            return -15.5 // Centered properly
+        default:
+            return 0 // Default case for safety
+        }
+    }
+
+
+    private func handleSidebarSelection(_ option: SidebarOption) {
+        withAnimation {
+            showSidebar = false
+        }
+        switch option {
+        case .habits:
+            selectedTab = 0
+        case .questions:
+            selectedTab = 1
+        case .journaling:
+            selectedTab = 2
+        case .feedback:
+            selectedTab = 3
+        case .bible:
+            selectedTab = 4 // Bible tab
+        }
+    }
+
+
 
     private func scrollToLast(scrollView: ScrollViewProxy) {
         DispatchQueue.main.async {

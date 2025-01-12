@@ -29,11 +29,7 @@ struct HomeScreenView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                // Logo at the top
-                Text("Apologist")
-                    .font(.custom("Georgia", size: 25))
-                    .foregroundColor(.white)
-                    .padding(.top, 16)
+
 
                 // Header
                 Text("Feedback")

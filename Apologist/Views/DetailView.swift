@@ -5,6 +5,7 @@
 //  Created by Nazarii Zomko on 21.07.2023.
 //
 
+
 import SwiftUI
 
 struct DetailView: View {
@@ -56,10 +57,12 @@ struct DetailView: View {
 
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {
-                        dismiss()
+                        print("Close button tapped") // Debug
+                        dismiss() // Ensure it only dismisses on explicit user action
                     }
                     .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
                 }
+
             }
             .onAppear {
                 setupAppearance()
