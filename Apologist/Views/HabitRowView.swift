@@ -2,19 +2,12 @@
 //  HabitRowView.swift
 //  Habit
 //
-//  Created by Nazarii Zomko on 15.05.2023.
-//
-
-//
-//  HabitRowView.swift
-//  Habit
-//
 
 import SwiftUI
 
 struct HabitRowView: View {
     @ObservedObject var habit: Habit
-    @State private var isPresentingEditHabitView = false
+    @Binding var activeHabit: Habit? // Binding to the centralized state in HabitListView
     @EnvironmentObject var dataController: DataController
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.colorScheme) var colorScheme
@@ -23,25 +16,22 @@ struct HabitRowView: View {
         ZStack(alignment: .top) {
             Color(hex: "#d4d4d4") // Light gray background
                 .onTapGesture {
-                    if !isPresentingEditHabitView {
-                        isPresentingEditHabitView = true
-                    }
+                    activeHabit = habit // Set the active habit to this one
                 }
-
                 .clipShape(
                     RoundedRectangle(cornerRadius: 13, style: .continuous) // Rounded corners
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        .stroke(Color.white, lineWidth: 3) // Black border
+                        .stroke(Color.white, lineWidth: 3) // White border
                 )
                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 4) // Soft drop shadow
-            
+
             VStack(spacing: 10) { // Adjusted spacing
                 HStack(alignment: .top) {
                     percentageView
                         .padding(.leading, -6) // Align the percentage with the start of the habit title
-                        .padding(.top, 4) // Scoot percentage circle slightly upward
+                        .padding(.top, 8) // Scoot percentage circle slightly upward
                     Spacer()
                     checkmarksView
                         .padding(.trailing, 10)
@@ -49,7 +39,7 @@ struct HabitRowView: View {
                 }
 
                 .padding(.leading, 22)
-                
+
                 HStack {
                     habitTitle
                         .padding(.horizontal, 22)
@@ -60,17 +50,12 @@ struct HabitRowView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top) // Align everything at the top
         }
-        .frame(height: 100) // Increased height slightly
+        .frame(height: 100) // Adjusted height
         .clipShape(
             RoundedRectangle(cornerRadius: 13, style: .continuous)
         )
-        .sheet(isPresented: $isPresentingEditHabitView) {
-            DetailView(habit: habit)
-                .environmentObject(dataController) // Pass environment object
-        }
-
-
         .accessibilityElement(children: .ignore)
+
         .accessibilityLabel("\(habit.title), \(habit.strengthPercentage)% strength, \(habit.isCompleted(daysAgo: 0) ? "completed" : "not completed") for today.")
         .accessibilityAction(named: "Toggle completion for today") {
             toggleCompletion(daysAgo: 0)
@@ -164,6 +149,9 @@ struct HabitRowView: View {
         .alignmentGuide(.top) { _ in 0 }
     }
 
+
+
+
     var checkmarksView: some View {
         HStack(spacing: 0) {
             ForEach(0..<7) { dayIndex in
@@ -194,6 +182,7 @@ struct HabitRowView: View {
 
     var habitTitle: some View {
         Text(habit.title ?? "")
+            .padding(.top, 7) // Add vertical padding to scoot the text down
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(.black)
             .if(colorScheme == .dark) { $0.shadow(radius: 1) }
@@ -208,7 +197,7 @@ struct HabitRowView: View {
 
 struct HabitRowView_Previews: PreviewProvider {
     static var previews: some View {
-        HabitRowView(habit: Habit.example)
+        HabitRowView(habit: Habit.example, activeHabit: .constant(nil))
             .previewLayout(.sizeThatFits)
             .padding()
     }

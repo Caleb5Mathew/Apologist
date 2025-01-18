@@ -1,3 +1,4 @@
+
 import CoreData
 import SwiftUI
 
@@ -5,6 +6,8 @@ struct HabitListView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var isSuggestedHabitVisible = true
     @State private var isCreatingNewHabit = false // State variable for sheet
+
+    @State private var activeHabit: Habit? // Centralized state for the selected habit
 
     @EnvironmentObject var dataController: DataController
     
@@ -39,7 +42,7 @@ struct HabitListView: View {
             List {
                 // List of existing habits
                 ForEach(habits) { habit in
-                    HabitRowView(habit: habit)
+                    HabitRowView(habit: habit, activeHabit: $activeHabit) // Pass binding
                         .listRowBackground(Color.clear)
                         .padding(8)
                 }
@@ -72,6 +75,12 @@ struct HabitListView: View {
                 )
             )
         }
+        // Present DetailView in a sheet
+        .sheet(item: $activeHabit) { habit in
+            DetailView(habit: habit)
+                .environment(\.managedObjectContext, viewContext)
+                .environmentObject(dataController)
+        }
         // Present EditHabitView in a sheet
         .sheet(isPresented: $isCreatingNewHabit) {
             EditHabitView(habit: nil)
@@ -88,36 +97,36 @@ struct HabitListView: View {
     private func navigateToCreateHabit() {
         isCreatingNewHabit = true
     }
-}
+    
+    
+    
+    struct SuggestedHabitRowView: View {
+        @Binding var isVisible: Bool
+        var onNavigate: () -> Void
 
-
-struct SuggestedHabitRowView: View {
-    @Binding var isVisible: Bool
-    var onNavigate: () -> Void
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .stroke(Color.white, lineWidth: 2) // White border
-            .background(Color.clear) // Transparent background
-            .frame(height: 75) // Match HabitRowView height
-            .overlay(
-                Text("Create your first habit")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-            )
-            .onTapGesture {
-                onNavigate() // Trigger navigation
-                isVisible = false // Hide suggested habit
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
+        var body: some View {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white, lineWidth: 2) // White border
+                .background(Color.clear) // Transparent background
+                .frame(height: 75) // Match HabitRowView height
+                .overlay(
+                    Text("Create your first habit")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                )
+                .onTapGesture {
+                    onNavigate() // Trigger navigation
+                    isVisible = false // Hide suggested habit
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16)
+        }
     }
-}
 
-struct HabitListView_Previews: PreviewProvider {
-    static var previews: some View {
-        HabitListView(sortingOption: .byDate, isSortingOrderAscending: false)
-            .environment(\.managedObjectContext, DataController.preview.container.viewContext)
-    }
-}
+    struct HabitListView_Previews: PreviewProvider {
+        static var previews: some View {
+            HabitListView(sortingOption: .byDate, isSortingOrderAscending: false)
+                .environment(\.managedObjectContext, DataController.preview.container.viewContext)
+        }
+    }}

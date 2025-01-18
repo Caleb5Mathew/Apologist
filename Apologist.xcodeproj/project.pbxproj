@@ -54,6 +54,11 @@
 		24426B752D3195E0005CD508 /* BibleListViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B742D3195E0005CD508 /* BibleListViews.swift */; };
 		24426B772D3195F5005CD508 /* ReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B762D3195F5005CD508 /* ReadingView.swift */; };
 		24426B792D319671005CD508 /* BibleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B782D319671005CD508 /* BibleModels.swift */; };
+		24426B7C2D36DF80005CD508 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B7B2D36DF80005CD508 /* AppDelegate.swift */; };
+		24426B7E2D3AD90B005CD508 /* BottomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B7D2D3AD90B005CD508 /* BottomNavigationBar.swift */; };
+		24426B802D3AED1C005CD508 /* AppVersionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B7F2D3AED1C005CD508 /* AppVersionManager.swift */; };
+		24426B822D3AEF54005CD508 /* CalendarViewTwo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B812D3AEF54005CD508 /* CalendarViewTwo.swift */; };
+		24426B842D3AEFD9005CD508 /* DateComp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B832D3AEFD9005CD508 /* DateComp.swift */; };
 		24A5C3B72D11EE7B00F2416A /* JournalHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */; };
 		24A5C3B92D11EE9400F2416A /* FreewriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3B82D11EE9400F2416A /* FreewriteView.swift */; };
 		24A5C3BB2D11EEA800F2416A /* GuidedJournalingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */; };
@@ -145,6 +150,11 @@
 		24426B742D3195E0005CD508 /* BibleListViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleListViews.swift; sourceTree = "<group>"; };
 		24426B762D3195F5005CD508 /* ReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingView.swift; sourceTree = "<group>"; };
 		24426B782D319671005CD508 /* BibleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleModels.swift; sourceTree = "<group>"; };
+		24426B7B2D36DF80005CD508 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		24426B7D2D3AD90B005CD508 /* BottomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomNavigationBar.swift; sourceTree = "<group>"; };
+		24426B7F2D3AED1C005CD508 /* AppVersionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionManager.swift; sourceTree = "<group>"; };
+		24426B812D3AEF54005CD508 /* CalendarViewTwo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewTwo.swift; sourceTree = "<group>"; };
+		24426B832D3AEFD9005CD508 /* DateComp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateComp.swift; sourceTree = "<group>"; };
 		24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalHomeView.swift; sourceTree = "<group>"; };
 		24A5C3B82D11EE9400F2416A /* FreewriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreewriteView.swift; sourceTree = "<group>"; };
 		24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedJournalingView.swift; sourceTree = "<group>"; };
@@ -222,6 +232,7 @@
 				24A5C3BC2D11F1D700F2416A /* ApologistApp.xcdatamodeld */,
 				24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */,
 				2404F9D72D040EE00020CC4C /* APContentView.swift */,
+				24426B7F2D3AED1C005CD508 /* AppVersionManager.swift */,
 				2404FA072D0553850020CC4C /* HomePageView.swift */,
 				2404F9FF2D0413630020CC4C /* LandingScreenView.swift */,
 				2404FA012D0413870020CC4C /* MainAppView.swift */,
@@ -243,6 +254,7 @@
 				2404FA032D0413A10020CC4C /* QuestionView.swift */,
 				2404FA092D0684500020CC4C /* ClaudeAPI.swift */,
 				2404F9DB2D040EE20020CC4C /* Preview Content */,
+				24426B7B2D36DF80005CD508 /* AppDelegate.swift */,
 			);
 			path = Apologist;
 			sourceTree = "<group>";
@@ -389,6 +401,8 @@
 			children = (
 				24BAA5602D113F5F0084D787 /* JournalEntryManager.swift */,
 				24A5C3B62D11EE7B00F2416A /* JournalHomeView.swift */,
+				24426B812D3AEF54005CD508 /* CalendarViewTwo.swift */,
+				24426B832D3AEFD9005CD508 /* DateComp.swift */,
 				24A5C3B82D11EE9400F2416A /* FreewriteView.swift */,
 				24A5C3BA2D11EEA800F2416A /* GuidedJournalingView.swift */,
 				24A5C3CB2D1204B700F2416A /* FreewriteHistoryView.swift */,
@@ -412,6 +426,7 @@
 			isa = PBXGroup;
 			children = (
 				24E6B1FC2D2B49E5009CF258 /* SidebarMenu.swift */,
+				24426B7D2D3AD90B005CD508 /* BottomNavigationBar.swift */,
 			);
 			path = Sidebar;
 			sourceTree = "<group>";
@@ -579,6 +594,8 @@
 				2404FAA12D0778DB0020CC4C /* EditHabitView.swift in Sources */,
 				24A5C3D22D1611A300F2416A /* HomeScreenView.swift in Sources */,
 				24426B772D3195F5005CD508 /* ReadingView.swift in Sources */,
+				24426B822D3AEF54005CD508 /* CalendarViewTwo.swift in Sources */,
+				24426B802D3AED1C005CD508 /* AppVersionManager.swift in Sources */,
 				2404F9D82D040EE00020CC4C /* APContentView.swift in Sources */,
 				2404FAA72D0778DB0020CC4C /* ShortcutsHabitEntity.swift in Sources */,
 				2404FAA52D0778DB0020CC4C /* DataController.swift in Sources */,
@@ -598,9 +615,11 @@
 				2404FA9A2D0778DB0020CC4C /* TipView.swift in Sources */,
 				2404FAA32D0778DB0020CC4C /* CalendarView.swift in Sources */,
 				24A5C3B92D11EE9400F2416A /* FreewriteView.swift in Sources */,
+				24426B7E2D3AD90B005CD508 /* BottomNavigationBar.swift in Sources */,
 				24BAA5612D113F5F0084D787 /* JournalEntryManager.swift in Sources */,
 				2404FA062D04E8CA0020CC4C /* ComingSoonView.swift in Sources */,
 				2404FA8C2D0778DB0020CC4C /* View+Ext.swift in Sources */,
+				24426B842D3AEFD9005CD508 /* DateComp.swift in Sources */,
 				24A5C3CE2D12080A00F2416A /* JournalingHistoryView.swift in Sources */,
 				2404FA082D0553850020CC4C /* HomePageView.swift in Sources */,
 				24E6B1FA2D288F96009CF258 /* NotificationManager.swift in Sources */,
@@ -608,6 +627,7 @@
 				2404FA8B2D0778DB0020CC4C /* Color+Ext.swift in Sources */,
 				2404FAA92D0778DB0020CC4C /* CompleteHabitIntent.swift in Sources */,
 				24A5C3BB2D11EEA800F2416A /* GuidedJournalingView.swift in Sources */,
+				24426B7C2D36DF80005CD508 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

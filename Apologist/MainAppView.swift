@@ -5,14 +5,16 @@
 //
 //  Created by Caleb Matthews  on 12/6/24.
 //
+//import FirebaseFirestore
 
 import SwiftUI
+
 
 struct MainAppView: View {
     @State private var userInput: String = ""
     @State private var messages: [Message] = []
     @State private var isTyping: Bool = false
-    @State private var selectedTab: Int = 2 // Default to "Ask" tab
+    @State private var selectedTab: Int = 1 // Default to "Ask" tab
     @State private var showCursor: Bool = false
     @State private var disableAutoscroll: Bool = false // Tracks whether autoscroll is disabled manually
     @State private var userInteracted: Bool = false // Tracks if the user interacted during this session
@@ -20,6 +22,9 @@ struct MainAppView: View {
     @State private var isPresentingEditHabitView = false
     @State private var sortingOption: SortingOption = .byDate
     @State private var isSortingOrderAscending: Bool = false
+//    @State private var db = Firestore.firestore() // Firestore reference
+//    @State private var currentUser: User? = Auth.auth().currentUser // Firebase user
+//
 
     var body: some View {
         ZStack {
@@ -89,42 +94,15 @@ struct MainAppView: View {
                     .padding(.top, 0)
                     .background(Color(hex: "#0B1E30"))
 
+                    VStack(spacing: 0) {
+                        currentPage
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-
-
-                    .padding(.horizontal, 20) // Adjust horizontal padding
-                    .padding(.top, 0)
-                    .background(Color(hex: "#0B1E30"))
-
-                    currentPage
-                        .highPriorityGesture(
-                            DragGesture(minimumDistance: 20) // Minimum distance to recognize a drag
-                                .onEnded { value in
-                                    // Calculate horizontal and vertical drag amounts
-                                    let horizontalAmount = value.translation.width
-                                    let verticalAmount = value.translation.height
-
-                                    // Detect swipe direction
-                                    if abs(horizontalAmount) > abs(verticalAmount) { // Horizontal swipe
-                                        if horizontalAmount < -50 { // Swipe left
-                                            print("Swipe left detected")
-                                            goToNextPage()
-                                        } else if horizontalAmount > 50 { // Swipe right
-                                            print("Swipe right detected")
-                                            goToPreviousPage()
-                                        } else {
-                                            print("Swipe gesture too short to register")
-                                        }
-                                    } else {
-                                        print("Vertical gesture detected; ignoring")
-                                    }
-                                }
-                        )
-
-
-
-
-
+                        // Bottom Navigation Bar
+                        BottomNavigationBar(selectedTab: $selectedTab) // Pass the binding
+                            .frame(height: 60)
+                            .background(Color(hex: "#0B1E30")) // Ensure consistent background color
+                    }
 
 
                 }
@@ -144,7 +122,6 @@ struct MainAppView: View {
             }
         }
     }
-
 
 
     
@@ -321,8 +298,9 @@ struct MainAppView: View {
                 JournalHomeView() // Journaling
                     .transition(.move(edge: swipeDirection))
             case 3:
-                HomeScreenView(selectedTab: $selectedTab) // Feedback
-                    .transition(.move(edge: swipeDirection))
+                HomeScreenView() // Corrected call with no arguments
+                    .transition(.move(edge: swipeDirection)) // Feedback
+
             case 4:
                 BibleView() // Bible
                     .transition(.move(edge: swipeDirection)) // Add the BibleView here
@@ -425,6 +403,10 @@ struct MainAppView: View {
         let userMessage = Message(id: UUID(), text: userInput, revealedText: userInput, isUser: true)
         messages.append(userMessage)
         print("DEBUG: Appended user message: \(userMessage.text)")
+
+        // Save the question to Firestore
+//        saveQuestionToFirestore(question: userInput)
+
         userInput = ""
 
         // Add placeholder for AI response
@@ -453,6 +435,25 @@ struct MainAppView: View {
             }
         )
     }
+//
+//    // Function to save questions to Firestore
+//    func saveQuestionToFirestore(question: String) {
+//        let db = Firestore.firestore()
+//
+//        let questionData: [String: Any] = [
+//            "question": question,
+//            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
+//        ]
+//
+//        db.collection("Questions").addDocument(data: questionData) { error in
+//            if let error = error {
+//                print("Error saving question: \(error.localizedDescription)")
+//            } else {
+//                print("Question successfully saved to Firestore!")
+//            }
+//        }
+//    }
+
 
 
 
@@ -532,6 +533,8 @@ struct MainAppView: View {
 
 
 }
+
+
 
 
 struct ChatBubble: View {

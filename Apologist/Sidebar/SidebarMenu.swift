@@ -4,6 +4,12 @@
 //
 //  Created by Caleb Matthews on 1/5/25.
 //
+//
+//  SidebarMenu.swift
+//  Apologist
+//
+//  Created by Caleb Matthews on 1/5/25.
+//
 
 import SwiftUI
 
@@ -23,37 +29,22 @@ enum SidebarOption: String, CaseIterable {
         case .bible: return "cross.fill" // A cross-like icon without splitting lines
         }
     }
-
-    
 }
 
 struct SidebarMenu: View {
     @Binding var showSidebar: Bool
     let onOptionSelected: (SidebarOption) -> Void
-    @State private var zoomEffect: CGFloat = 1.0
-    @State private var transitioning: Bool = false
-    @State private var selectedAnchor: UnitPoint = .center
-    @State private var flashWhite: Bool = false
+    @State private var selectedOption: SidebarOption?
 
     var body: some View {
         ZStack {
-            // Dimmed Background Tap Area
-            if showSidebar {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showSidebar = false
-                        }
-                    }
-            }
-
             // Sidebar Content
             if showSidebar {
-                GeometryReader { proxy in
+                GeometryReader { _ in
                     VStack(spacing: 0) {
                         // Top Section: Menu Button and Apologist Header
                         HStack {
+                            // Existing Menu Button (Left Side)
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     showSidebar = false
@@ -65,9 +56,24 @@ struct SidebarMenu: View {
                                     .padding(.leading, 38)
                                     .padding(.top, 24)
                             }
+
                             Spacer()
+
+                            // New "X" Button (Right Side)
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showSidebar = false
+                                }
+                            }) {
+                                Image(systemName: "xmark")
+                                    .font(.title2)
+                                    .foregroundColor(.red) // Red color for the "X"
+                                    .padding(.trailing, 38) // Adjust padding to match the left button
+                                    .padding(.top, 24)
+                            }
                         }
                         .padding(.top, 50)
+
 
                         Text("Apologist")
                             .font(.custom("Georgia", size: 25))
@@ -80,8 +86,7 @@ struct SidebarMenu: View {
                         VStack(alignment: .leading, spacing: 25) {
                             ForEach(SidebarOption.allCases, id: \.self) { option in
                                 Button(action: {
-                                    calculateAnchor(for: option, in: proxy)
-                                    startTransition(to: option)
+                                    performImmediateTransition(to: option)
                                 }) {
                                     HStack(spacing: 15) {
                                         Image(systemName: option.iconName)
@@ -111,64 +116,22 @@ struct SidebarMenu: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .scaleEffect(transitioning ? zoomEffect : 1.0, anchor: selectedAnchor) // Zoom into the icon
-                    .animation(.easeInOut(duration: 0.5), value: zoomEffect)
+                    .transition(.move(edge: .leading)) // Sidebar slides in from the left
                     .ignoresSafeArea()
                 }
-            }
-
-            // Quick White Flash
-            if flashWhite {
-                Color.white
-                    .ignoresSafeArea()
-                    .transition(.opacity)
             }
         }
         .animation(.easeInOut, value: showSidebar)
     }
 
-    private func startTransition(to option: SidebarOption) {
-        transitioning = true
-        withAnimation(.easeInOut(duration: 0.012)) {
-            zoomEffect = 300.0 // Increased zoom level
+    private func performImmediateTransition(to option: SidebarOption) {
+        withAnimation(.none) {
+            selectedOption = option
+            showSidebar = false
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.012) {
-            withAnimation(.easeInOut(duration: 0.01)) {
-                flashWhite = true // Flash the screen to white quickly
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.00) { // End flash and transition to the new page
-                transitioning = false
-                flashWhite = false
-                showSidebar = false
-                onOptionSelected(option) // Trigger the option's action immediately
-            }
-        }
+        onOptionSelected(option) // Trigger the selected option's action immediately
     }
-
-    private func calculateAnchor(for option: SidebarOption, in proxy: GeometryProxy) {
-        // Get the index of the selected button
-        let buttonIndex = SidebarOption.allCases.firstIndex(of: option) ?? 0
-
-        // Map the button index to the recalculated Y offsets
-        let yOffsets: [CGFloat] = [0.158, 0.232, 0.312, 0.391, 0.474]
-
-        // Use the corresponding Y offset for the selected button
-        let yOffset = yOffsets[buttonIndex]
-
-        // Set the anchor point with adjusted X and Y values
-        selectedAnchor = UnitPoint(x: 0.094, y: yOffset)
-    }
-
-
-
-
-
 }
-
-
-
 
 
 

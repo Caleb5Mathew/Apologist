@@ -41,8 +41,9 @@ struct Book: Identifiable, Decodable {
 }
 
 struct BookResponse: Decodable {
-    let data: [Book]
+    let data: [Book]? // Mark `data` as optional to handle missing or null responses
 }
+
 
 // Chapter and ChapterResponse Models
 

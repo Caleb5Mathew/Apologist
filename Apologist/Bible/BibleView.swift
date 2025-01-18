@@ -17,10 +17,15 @@ struct BibleView: View {
     let predefinedBibles: [Bible] = [
         Bible(id: "06125adad2d5898a-01", name: "New International Version (NIV)"),
         Bible(id: "de4e12af7f28f599-02", name: "King James Version (KJV)"),
-        Bible(id: "01b28e5b000d1987-01", name: "English Standard Version (ESV)"),
-        Bible(id: "e3c121f6c3d7b2e4-01", name: "New Living Translation (NLT)"),
-        Bible(id: "be4e24b44edc4c84-01", name: "Catholic Public Domain Version (CPDV)")
+        Bible(id: "bba9f40183526463-01", name: "Berean Standard Bible"),              // Protestant
+        Bible(id: "de4e12af7f28f599-01", name: "New King James Version (NKJV)"),     // Protestant
+        Bible(id: "179568874c45066f-01", name: "Douay-Rheims American 1899")         // Catholic
     ]
+
+
+
+
+
 
     var body: some View {
         NavigationView {
@@ -38,20 +43,44 @@ struct BibleView: View {
                             }
                         )
                     } else if currentStep == .books {
-                        BookListView(
-                            books: $books,
-                            isLoading: $isLoadingBooks,
-                            onSelect: { book in
-                                setLoadingState("Loading Chapters...")
-                                selectedBook = book
-                                currentStep = .chapters
-                                clearLoadingState()
-                            },
-                            onBack: {
-                                handleBackNavigation("Loading Bible Versions...", targetStep: .bibles)
+                        if isLoadingBooks {
+                            LeftwardLoadingView(message: "Loading Books...")
+                        } else if books.isEmpty {
+                            VStack {
+                                Text("No books available for this Bible version.")
+                                    .font(.custom("Avenir Next", size: 18))
+                                    .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
+                                    .padding()
+                                    .multilineTextAlignment(.center)
+
+                                Button(action: {
+                                    currentStep = .bibles
+                                    selectedBibleId = nil
+                                }) {
+                                    Text("Go Back")
+                                        .font(.custom("Avenir Next", size: 16))
+                                        .foregroundColor(Color(hex: "#FFD79D")) // StarrySkyYellow
+                                        .padding(.horizontal)
+                                }
                             }
-                        )
-                    } else if currentStep == .chapters {
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            BookListView(
+                                books: $books,
+                                isLoading: $isLoadingBooks,
+                                onSelect: { book in
+                                    setLoadingState("Loading Chapters...")
+                                    selectedBook = book
+                                    currentStep = .chapters
+                                    clearLoadingState()
+                                },
+                                onBack: {
+                                    handleBackNavigation("Loading Bible Versions...", targetStep: .bibles)
+                                }
+                            )
+                        }
+                    }
+ else if currentStep == .chapters {
                         if let selectedBook = selectedBook, let selectedBibleId = selectedBibleId {
                             ChapterListView(
                                 book: selectedBook,
@@ -142,7 +171,6 @@ struct BibleView: View {
         }
     }
 
-    // MARK: - Fetch Books
     private func fetchBooks() {
         guard let selectedBibleId = selectedBibleId else {
             print("DEBUG: Bible ID is nil.")
@@ -163,27 +191,42 @@ struct BibleView: View {
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("DEBUG: Error fetching books: \(error.localizedDescription)")
-                clearLoadingState()
+                DispatchQueue.main.async {
+                    self.books = [] // Clear books in case of an error
+                    self.isLoadingBooks = false
+                    clearLoadingState()
+                }
                 return
             }
 
             guard let data = data else {
                 print("DEBUG: No data received.")
-                clearLoadingState()
+                DispatchQueue.main.async {
+                    self.books = [] // Clear books if no data is received
+                    self.isLoadingBooks = false
+                    clearLoadingState()
+                }
                 return
             }
 
             do {
+                // Attempt to decode the response
                 let decodedResponse = try JSONDecoder().decode(BookResponse.self, from: data)
                 DispatchQueue.main.async {
-                    self.books = decodedResponse.data
+                    self.books = decodedResponse.data ?? [] // Handle optional `data` field gracefully
                     self.isLoadingBooks = false
                     clearLoadingState()
                 }
             } catch {
                 print("DEBUG: Failed to decode Books response: \(error.localizedDescription)")
-                clearLoadingState()
+                print("DEBUG: Raw Response - \(String(data: data, encoding: .utf8) ?? "No readable data")")
+                DispatchQueue.main.async {
+                    self.books = [] // Clear books on decoding failure
+                    self.isLoadingBooks = false
+                    clearLoadingState()
+                }
             }
         }.resume()
     }
+
 }

@@ -9,19 +9,13 @@ struct BibleVersionListView: View {
         VStack(spacing: 0) {
             // Custom Header
             HStack {
-                Button(action: {
-                    // Action to go back or dismiss
-                    selectedBibleId = nil
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
-                }
-                Spacer()
+                Spacer() // Maintain spacing on the left
                 Text("Select Bible Version")
                     .font(.custom("Avenir Next", size: 22))
                     .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
-                Spacer()
+                Spacer() // Maintain spacing on the right
+            
+
             }
             .padding()
             .background(Color(hex: "#0B1E30")) // Deep Midnight Blue
@@ -44,6 +38,7 @@ struct BibleVersionListView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(Color(hex: "#FFD79D")) // StarrySkyYellow
+
                             }
                             .padding(.horizontal)
                             .background(Color(hex: "#0B1E30")) // Deep Midnight Blue
@@ -78,6 +73,8 @@ struct BookListView: View {
                     Image(systemName: "chevron.left")
                         .font(.title2)
                         .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
+                        .padding(.leading, 25) // Increased padding to move the arrow further to the right
+
                 }
                 Spacer()
                 Text("Books")
@@ -166,6 +163,8 @@ struct ChapterListView: View {
                     Image(systemName: "chevron.left")
                         .font(.title2)
                         .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
+                        .padding(.leading, 25) // Increased padding to move the arrow further to the right
+
                 }
                 Spacer()
                 Text("\(book.name) - Chapters")

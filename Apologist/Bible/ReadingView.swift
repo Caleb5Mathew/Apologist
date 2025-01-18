@@ -26,7 +26,7 @@ struct ReadingView: View {
                             .font(.title2)
                             .foregroundColor(Color(hex: "#ECEFF4")) // MoonlightWhite
                     }
-                    .padding(.leading, 45) // Increased padding to move the arrow further to the right
+                    .padding(.leading, 40) // Increased padding to move the arrow further to the right
                     .padding(.top, 10) // Increased padding to move the arrow further to the right
 
 
