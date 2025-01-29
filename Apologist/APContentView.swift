@@ -40,12 +40,25 @@ struct APContentView: View {
                 title: Text("Update Available"),
                 message: Text("A new version is available! Update now to enjoy the latest features and improvements."),
                 primaryButton: .default(Text("Update")) {
-                    if let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID") {
-                        UIApplication.shared.open(url)
+                    // Replace with your app's ID
+                    let appId = "6739737481"
+                    
+                    // Replace "cn" with the appropriate country code for your app store
+                    if let appURL = URL(string: "itms-apps://itunes.apple.com/cn/app/id" + appId + "?mt=8") {
+                        UIApplication.shared.open(appURL, options: [.universalLinksOnly: false]) { success in
+                            if success {
+                                print("Successfully redirected to the App Store")
+                            } else {
+                                print("Failed to open the App Store")
+                            }
+                        }
+                    } else {
+                        print("Invalid URL for the App Store")
                     }
                 },
                 secondaryButton: .cancel(Text("Later"))
             )
         }
+
     }
 }

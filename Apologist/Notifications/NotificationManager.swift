@@ -52,7 +52,7 @@ struct NotificationManager {
         }
     }
 
-    /// Schedules a daily notification.
+    /// Schedules a daily notification at a random time between 9 AM and 7 PM.
     private static func scheduleDailyNotification() {
         let center = UNUserNotificationCenter.current()
 
@@ -61,9 +61,14 @@ struct NotificationManager {
         content.body = "You're on track! Keep logging your habits daily to achieve your goals!"
         content.sound = .default
 
-        // Schedule at 9 AM daily
+        // Generate a random time between 9 AM and 7 PM
+        let hour = Int.random(in: 9...19) // Hours from 9 to 19 (7 PM)
+        let minute = Int.random(in: 0..<60) // Minutes from 0 to 59
+
         var dateComponents = DateComponents()
-        dateComponents.hour = 9
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
@@ -72,7 +77,7 @@ struct NotificationManager {
             if let error = error {
                 print("Error scheduling daily notification: \(error.localizedDescription)")
             } else {
-                print("Daily notification scheduled.")
+                print("Daily notification scheduled for \(hour):\(String(format: "%02d", minute)).")
             }
         }
     }
@@ -96,9 +101,14 @@ struct NotificationManager {
         }
         content.sound = .default
 
-        // Schedule at 9 AM
+        // Generate a random time between 9 AM and 7 PM
+        let hour = Int.random(in: 9...19)
+        let minute = Int.random(in: 0..<60)
+
         var dateComponents = DateComponents()
-        dateComponents.hour = 9
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
@@ -106,7 +116,7 @@ struct NotificationManager {
             if let error = error {
                 print("Error scheduling alternating notification: \(error.localizedDescription)")
             } else {
-                print("\(lastNotificationType?.capitalized ?? "Notification") notification scheduled.")
+                print("\(lastNotificationType?.capitalized ?? "Notification") notification scheduled for \(hour):\(String(format: "%02d", minute)).")
             }
         }
     }
@@ -123,3 +133,4 @@ struct NotificationManager {
         }
     }
 }
+

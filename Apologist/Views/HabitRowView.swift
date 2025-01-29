@@ -129,24 +129,25 @@ struct HabitRowView: View {
 
     var percentageView: some View {
         let progressPercentage = min(Int(progress * 100), 100) // Limit to 100%
-        let scaledPercentage = min(progress * 1.8, 1.8) // Scale up to 130% when progress is 100%
+        let scaledFillPercentage = min(progress * 25, 25) // Scale fill dynamically with progress
 
         return ZStack {
+            // Outer Circle (constant size, always filled with the habit color)
+            Circle()
+                .fill(Color(habit.color)) // Always filled with the habit color
+                .frame(width: 38, height: 38) // Smaller circle size
+
+            // Dynamic Inner Fill Circle (scaled based on progress)
             Circle()
                 .fill(Color(habit.color))
-                .frame(width: 35, height: 35)
+                .frame(width: CGFloat(28 * scaledFillPercentage), height: CGFloat(28 * scaledFillPercentage)) // Dynamically change the fill size
 
-            Circle()
-                .stroke(style: StrokeStyle(lineWidth: CGFloat(progressPercentage) * progressMultiplier))
-                .foregroundColor(Color(habit.color))
-                .frame(width: CGFloat(30 * scaledPercentage), height: CGFloat(30 * scaledPercentage))
-
+            // Text at the center
             Text("\(progressPercentage)%")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.black)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(.black) // Text color contrasts with the habit-colored circle
         }
-        .frame(width: 50, height: 50)
-        .alignmentGuide(.top) { _ in 0 }
+        .frame(width: 38, height: 38) // Ensure consistent size for the ZStack
     }
 
 
