@@ -1,4 +1,3 @@
-//
 //  ChatView.swift
 //  Apologist
 //
@@ -6,9 +5,9 @@
 //
 
 
-
+import SuperwallKit
 import SwiftUI
-//import FirebaseFirestore
+import FirebaseFirestore
 
 struct ChatView: View {
     @Binding var userInput: String
@@ -18,93 +17,150 @@ struct ChatView: View {
     @State private var userInteracted: Bool = false // Tracks if the user interacted during this session
     @State private var showCursor: Bool = false
     @State private var generationTimer: Timer? // Timer reference for stopping generation
-//    @State private var db = Firestore.firestore() // Firestore reference
-
+    @State private var db = Firestore.firestore() // Firestore reference
+    @State private var showTooltip = false
+    @State private var revealTimer: DispatchSourceTimer?
+    @State private var dailyQuestionCount: Int = 5 // Start with 5 questions available
     var body: some View {
-        VStack(spacing: 0) {
-            // Suggested Questions (if no messages exist)
-            if messages.isEmpty {
-                VStack(spacing: 12) {
-                    Text("SUGGESTED QUESTIONS")
-                        .font(.system(size: 12, weight: .bold))
-                        .kerning(1.5)
-                        .foregroundColor(Color.white)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom, 5)
+        ZStack(alignment: messages.isEmpty ? .topTrailing : .topLeading) {
+            VStack(spacing: 0) {
+                // Chat History with Scrolling
+                ScrollViewReader { scrollView in
+                    ScrollView(.vertical) {
+                        LazyVStack(alignment: .leading, spacing: 8) {
+                            if messages.isEmpty {
+                                // Suggested Questions or Empty ChatView
+                                VStack(spacing: 12) {
+                                    Text("SUGGESTED QUESTIONS")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .kerning(1.5)
+                                        .foregroundColor(Color.white)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.bottom, 5)
+                                    
+                                    ForEach([
+                                        "How do I know God is real?",
+                                        "How do I hear God?",
+                                        "How could a loving God allow so much suffering?",
+                                        "Why would God send people to hell?"
+                                    ], id: \.self) { question in
+                                        Button(action: {
+                                            userInput = question
+                                            sendMessage()
+                                        }) {
+                                            Text(question)
+                                                .font(.system(size: 14, weight: .bold))
+                                                .kerning(1.5)
+                                                .foregroundColor(Color.white)
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 8)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .stroke(Color.white, lineWidth: 2)
+                                                )
+                                        }
+                                    }
+                                    .padding(.horizontal, 20)
+                                }
+                                .padding(.top, 30) // Keeps space at the top
+                                .offset(x: 15)
+                            } else {
+                                // Chat Messages
+                                ForEach(messages.indices, id: \.self) { index in
+                                    let message = messages[index]
+                                    let isConsecutive = index > 0 && messages[index - 1].isUser == message.isUser
+                                    
+                                    ChatBubble(
+                                        messages: $messages,
+                                        message: message,
+                                        isConsecutive: isConsecutive,
+                                        showCursor: showCursor && !message.isUser
+                                    )
+                                    .transition(.opacity)
+                                    .animation(.easeInOut(duration: 0.3), value: message.revealedText)
+                                    .id(index)
+                                }
+                                typingIndicatorView()
+
+
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 10) // Space above chat messages
+                    }
+                    .background(Color(hex: "#0B1E30"))
+                    .gesture(DragGesture()
+                        .onChanged { _ in
+                            disableAutoscroll = true
+                        }
+                        .onEnded { _ in
+                            disableAutoscroll = false
+                        }
+                    )
                     
-                    ForEach([
-                        "How do I know God is real?",
-                        "How do I hear God?",
-                        "How could a loving God allow so much suffering?",
-                        "Why would God send people to hell?"
-                    ], id: \.self) { question in
-                        Button(action: {
-                            userInput = question
-                            sendMessage()
-                        }) {
-                            Text(question)
-                                .font(.system(size: 14, weight: .bold))
-                                .kerning(1.5)
-                                .foregroundColor(Color.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
+                    .onChange(of: messages) { _ in
+                        if !disableAutoscroll {
+                            scrollToLast(scrollView: scrollView)
                         }
                     }
-                    .padding(.horizontal, 20)
                 }
-                .padding(.top, 30)
+                
+                // Input Section
+                inputSection
             }
             
-            // Chat History with Scrolling
-            ScrollViewReader { scrollView in
-                ScrollView(.vertical) {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(messages.indices, id: \.self) { index in
-                            let message = messages[index]
-                            let isConsecutive = index > 0 && messages[index - 1].isUser == message.isUser
-
-                            ChatBubble(
-                                messages: $messages,
-                                message: message,
-                                isConsecutive: isConsecutive,
-                                showCursor: showCursor && !message.isUser
-                            )
-
-                            .transition(.opacity)
-                            .animation(.easeInOut(duration: 0.3), value: message.revealedText)
-                            .id(index)
-                        }
+            // Question Counter Circle
+            ZStack(alignment: .center) {
+                Circle()
+                    .fill(Color.gray.opacity(0.8))
+                    .frame(width: 36, height: 36)
+                    .overlay(
+                        Text(Superwall.shared.subscriptionStatus == .active
+                             ? "∞"
+                             : "\(max(0, 5 - dailyQuestionCount))/5")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
+                    )
 
 
-                        
-                        if isTyping {
-                            TypingIndicator()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal)
-                                .id("TypingIndicator")
+                    .contentShape(Circle())
+                    .onTapGesture {
+                        showTooltip = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showTooltip = false
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 10)
-                }
-                .background(Color(hex: "#0B1E30"))
-                .gesture(DragGesture().onChanged { _ in
-                    disableAutoscroll = true
-                    userInteracted = true
-                })
-                .onChange(of: messages) { _ in
-                    if !disableAutoscroll {
-                        scrollToLast(scrollView: scrollView)
+                
+                // Tooltip with fixed width
+                if showTooltip {
+                    VStack(alignment: .center, spacing: 3) {
+                        Text("\(max(0, 5 - dailyQuestionCount))")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                        Text("of 5 free daily")
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundColor(.white)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Text("questions used")
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundColor(.white)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
+                    .padding(6)
+                    .background(Color.black.opacity(0.8))
+                    .cornerRadius(6)
+                    .shadow(radius: 2)
+                    .offset(y: 45)
+                    .transition(.scale.combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.3), value: showTooltip)
                 }
             }
-            
-            // Input Section
-            inputSection
+            .frame(width: 36, height: 36)
+            .padding(.top, messages.isEmpty ? 10 : 15) // More top padding when showing messages
+            .padding(messages.isEmpty ? .trailing : .leading, messages.isEmpty ? 20 : 25) // More leading padding when showing messages
+        }
+        .onAppear {
+            resetDailyQuestionCountIfNeeded()
         }
     }
     
@@ -158,63 +214,115 @@ struct ChatView: View {
         .background(Color(hex: "#0B1E30"))
     }
     
-
     
+    @ViewBuilder
+    private func typingIndicatorView() -> some View {
+        if isTyping && messages.last?.revealedText.isEmpty == true {
+            TypingIndicator() // ✅ Removed argument since TypingIndicator likely takes none
+                .id(UUID()) // ✅ Forces SwiftUI to refresh
+                .id(isTyping) // ✅ Forces SwiftUI to recognize state change
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+        } else {
+            EmptyView() // ✅ Ensures function always returns something
+        }
+    }
     
     
     private func sendMessage() {
         generationTimer?.invalidate()
-        generationTimer = nil
         print("DEBUG: Timer invalidated.")
 
-        // Ensure user input is not empty
         guard !userInput.trimmingCharacters(in: .whitespaces).isEmpty else {
             print("DEBUG: User input is empty. Exiting sendMessage.")
             return
         }
 
-        // Reset `isResponseEnd` and `actions` for all assistant messages
+        let isSubscribed = Superwall.shared.subscriptionStatus == .active
+        print("DEBUG: Subscription status from Superwall - \(isSubscribed ? "Active" : "Inactive")")
+
+        let currentDate = Calendar.current.startOfDay(for: Date())
+        let lastAccessDate = UserDefaults.standard.object(forKey: "lastAccessDate") as? Date ?? Date.distantPast
+
+        if currentDate > Calendar.current.startOfDay(for: lastAccessDate) {
+            print("DEBUG: New day detected. Resetting daily question count.")
+            UserDefaults.standard.set(currentDate, forKey: "lastAccessDate")
+            UserDefaults.standard.set(0, forKey: "dailyQuestionCount")
+            dailyQuestionCount = 0
+        }
+
+        print("DEBUG: Daily question count before increment: \(dailyQuestionCount)/5")
+
+        if !isSubscribed && dailyQuestionCount >= 5 {
+            print("DEBUG: Daily limit reached! TRIGGERING PAYWALL.")
+            triggerPaywall()
+            return
+        }
+
+        executeSendMessage()
+    }
+
+
+
+    private func triggerPaywall() {
+        print("DEBUG: Attempting to trigger paywall...")
+
+        Superwall.shared.register(event: "campaign_trigger") {
+            print("DEBUG: Paywall triggered.")
+
+            if Superwall.shared.subscriptionStatus == .active {
+                print("DEBUG: User subscribed after paywall. Allowing message.")
+                executeSendMessage()
+            } else {
+                print("DEBUG: Paywall dismissed. Message NOT sent.")
+            }
+        }
+    }
+
+    private func executeSendMessage() {
+        incrementQuestionCount()
+        
         messages.indices.forEach { index in
             if !messages[index].isUser {
                 messages[index].isResponseEnd = false
                 messages[index].actions = nil
             }
         }
-
-        // Create and append the user's message
+        
         let userMessage = Message(id: UUID(), text: userInput, revealedText: userInput, isUser: true)
         messages.append(userMessage)
         print("DEBUG: User message added: \(userMessage)")
-
-        // Add user input to memory
+        
         ClaudeAPI.shared.addToMemory(userInput)
         print("DEBUG: Memory after adding user input: \(ClaudeAPI.shared.memory)")
-
         
-//        saveQuestionToFirestore(question: userInput)
-
-        // Reset user input field
+        saveQuestionToFirestore(question: userInput)
+        
         userInput = ""
-
-        // Create and append the assistant's placeholder response
+        
+        generationTimer?.invalidate()
+        generationTimer = nil
+        
+        showCursor = false
+        
         let responseId = UUID()
         let responseMessage = Message(id: responseId, text: "", revealedText: "", isUser: false)
         messages.append(responseMessage)
         print("DEBUG: Response message placeholder added with ID \(responseId)")
-
-        // Set typing state to true
+        
         isTyping = true
         print("DEBUG: Typing indicator set to true.")
-
-        // Send the query using ClaudeAPI
+        
         ClaudeAPI.shared.sendStreamedQuery(
             userMessage.text,
             onReceive: { chunk in
-                // Append received chunk to the assistant's response
                 if let index = messages.firstIndex(where: { $0.id == responseId }) {
                     DispatchQueue.main.async {
+                        if messages[index].text == "..." {
+                            messages[index].text = ""
+                        }
+                        
                         messages[index].text += chunk
-                        messages[index].revealedText += chunk
                         print("DEBUG: Received chunk for response ID \(responseId): \(chunk)")
                     }
                 } else {
@@ -223,37 +331,55 @@ struct ChatView: View {
             },
             onComplete: {
                 DispatchQueue.main.async {
-                    // Set typing state to false
                     isTyping = false
                     print("DEBUG: Typing indicator set to false. Starting word reveal for message ID \(responseId).")
 
-                    // Reveal words gradually for the response
-                    revealWordsGradually(for: responseId) {
-                        // Assign follow-up buttons after the response is fully revealed
-                        if let lastResponseIndex = messages.firstIndex(where: { $0.id == responseId }) {
-                            messages[lastResponseIndex].actions = [
+                    if let index = messages.firstIndex(where: { $0.id == responseId }) {
+                        revealWordsGradually(for: responseId) {
+                            messages[index].actions = [
                                 Action(title: "Analogy", action: { print("DEBUG: Tapped Analogy for message ID: \(responseId)") }),
                                 Action(title: "Simplify", action: { print("DEBUG: Tapped Simplify for message ID: \(responseId)") }),
                                 Action(title: "Expand", action: { print("DEBUG: Tapped Expand for message ID: \(responseId)") }),
                                 Action(title: "Dig Deeper", action: { print("DEBUG: Tapped Dig Deeper for message ID: \(responseId)") })
                             ]
-                            messages[lastResponseIndex].isResponseEnd = true // Mark response as completed
-                            print("DEBUG: Actions assigned to message ID \(responseId): \(messages[lastResponseIndex].actions?.map { $0.title } ?? [])")
-                        } else {
-                            print("DEBUG: Could not find message for response ID \(responseId)")
+                            messages[index].isResponseEnd = true
+                            print("DEBUG: Actions assigned to message ID \(responseId): \(messages[index].actions?.map { $0.title } ?? [])")
                         }
-
-                        // Trigger UI update
-                        messages = messages.map { $0 }
-                        print("DEBUG: Messages array updated to trigger UI refresh. Current messages:\n\(messages)")
+                    } else {
+                        print("DEBUG: Could not find message for response ID \(responseId)")
                     }
+
+                    messages = messages.map { $0 }
+                    print("DEBUG: Messages array updated to trigger UI refresh. Current messages:\n\(messages)")
                 }
             }
         )
     }
 
+    private func incrementQuestionCount() {
+        dailyQuestionCount += 1
+        UserDefaults.standard.set(dailyQuestionCount, forKey: "dailyQuestionCount")
+        
+        print("DEBUG: Question count incremented to \(dailyQuestionCount)")
 
-    
+        if dailyQuestionCount >= 5 {
+            print("DEBUG: Daily question limit reached! Next message should trigger paywall.")
+        }
+    }
+
+    private func resetDailyQuestionCountIfNeeded() {
+        let currentDate = Calendar.current.startOfDay(for: Date())
+        let lastAccessDate = UserDefaults.standard.object(forKey: "lastAccessDate") as? Date ?? Date.distantPast
+
+        if currentDate > Calendar.current.startOfDay(for: lastAccessDate) {
+            UserDefaults.standard.set(currentDate, forKey: "lastAccessDate")
+            UserDefaults.standard.set(0, forKey: "dailyQuestionCount")
+            dailyQuestionCount = 0
+        } else {
+            dailyQuestionCount = UserDefaults.standard.integer(forKey: "dailyQuestionCount")
+        }
+    }
+
     // Scroll to the last message for autoscroll functionality
     private func scrollToLastMessage() {
         DispatchQueue.main.async {
@@ -267,59 +393,23 @@ struct ChatView: View {
         }
     }
     // Function to save questions to Firestore
-//    func saveQuestionToFirestore(question: String) {
-//        let db = Firestore.firestore()
-//
-//        let questionData: [String: Any] = [
-//            "question": question,
-//            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
-//        ]
-//
-//        db.collection("Questions").addDocument(data: questionData) { error in
-//            if let error = error {
-//                print("Error saving question: \(error.localizedDescription)")
-//            } else {
-//                print("Question successfully saved to Firestore!")
-//            }
-//        }
-//    }
-    
-    
-    private func sendFollowUpPrompt(using prompt: String) {
-        generationTimer?.invalidate()
-        generationTimer = nil
-
-        guard let lastResponse = messages.last(where: { !$0.isUser })?.text else {
-            print("DEBUG: No previous AI response found to use for follow-up.")
-            return
-        }
-
-        let followUpQuery = "\(prompt)\n\n\(lastResponse)"
-        let followUpMessage = Message(id: UUID(), text: "", revealedText: "", isUser: false)
-        messages.append(followUpMessage)
-        isTyping = true
-
-        ClaudeAPI.shared.sendStreamedQuery(followUpQuery,
-            onReceive: { chunk in
-                if let index = messages.firstIndex(where: { $0.id == followUpMessage.id }) {
-                    DispatchQueue.main.async {
-                        messages[index].text += chunk
-                    }
-                }
-            },
-            onComplete: {
-                DispatchQueue.main.async {
-                    isTyping = false
-                    revealWordsGradually(for: followUpMessage.id)
-                }
+    func saveQuestionToFirestore(question: String) {
+        let db = Firestore.firestore()
+        
+        let questionData: [String: Any] = [
+            "question": question,
+            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
+        ]
+        
+        db.collection("Questions").addDocument(data: questionData) { error in
+            if let error = error {
+                print("Error saving question: \(error.localizedDescription)")
+            } else {
+                print("Question successfully saved to Firestore!")
             }
-        )
+        }
     }
-
     
-    
-    
-
     private func scrollToLast(scrollView: ScrollViewProxy) {
         DispatchQueue.main.async {
             if let lastIndex = messages.indices.last {
@@ -340,47 +430,53 @@ struct ChatView: View {
     }
     
     
-    private func revealWordsGradually(for messageId: UUID, onComplete: @escaping () -> Void = {}) {
-        // Stop any previous timer
+    private func revealWordsGradually(for messageId: UUID, typingSpeed: TimeInterval = 0.013, onComplete: @escaping () -> Void = {}) {
         generationTimer?.invalidate()
         
         guard let index = messages.firstIndex(where: { $0.id == messageId }) else { return }
         
         let fullText = messages[index].text
-        var revealedWords = [String]()
-        let words = fullText.split(separator: " ")
+        let characters = Array(fullText) // Convert text to a character array
+        var currentIndex = 0
         
         // Reset states for a new response
         messages[index].revealedText = ""
         isTyping = true
-        showCursor = false
-        
-        // Timer for word-by-word reveal
-        generationTimer = Timer.scheduledTimer(withTimeInterval: 0.125, repeats: true) { timer in
-            if revealedWords.count < words.count {
-                revealedWords.append(String(words[revealedWords.count]))
-                DispatchQueue.main.async {
-                    messages[index].revealedText = revealedWords.joined(separator: " ")
-                    
-                    // Ensure `...` disappears and `|` appears after the first word
-                    if revealedWords.count == 1 {
-                        isTyping = false // Turn off typing indicator
-                        showCursor = true // Turn on the cursor
+        showCursor = true  // ✅ Cursor starts on
+
+        print("DEBUG: Cursor is set to TRUE before reveal starts.")
+
+        generationTimer = Timer.scheduledTimer(withTimeInterval: typingSpeed, repeats: true) { timer in
+            DispatchQueue.main.async {
+                if currentIndex < characters.count {
+                    messages[index].revealedText.append(characters[currentIndex])
+                    currentIndex += 1
+
+                    // ✅ Hide cursor immediately after first character
+                    if currentIndex == 1 {
+                        showCursor = false
+                        print("DEBUG: Cursor is set to FALSE after first character.")
+                        
+                        // ✅ Force UI update
+                        messages = messages.map { $0 }
                     }
-                }
-            } else {
-                // Invalidate timer when response is complete
-                timer.invalidate()
-                DispatchQueue.main.async {
-                    messages[index].revealedText = revealedWords.joined(separator: " ")
-                    isTyping = false // Ensure typing indicator is off
-                    showCursor = false // Remove the cursor after completion
+
+                } else {
+                    // ✅ Stop timer when done
+                    timer.invalidate()
+                    self.generationTimer = nil
                     
-                    // Execute the onComplete handler
+                    isTyping = false
+                    showCursor = false
+                    print("DEBUG: Cursor is set to FALSE at the end of reveal.")
+
+                    // ✅ Force final UI update
+                    messages = messages.map { $0 }
                     onComplete()
                 }
             }
         }
+        
+        RunLoop.current.add(generationTimer!, forMode: .common)
     }
-
 }

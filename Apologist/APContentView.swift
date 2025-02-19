@@ -1,9 +1,3 @@
-//
-//  ContentView.swift
-//  Apologist
-//
-//  Created by Caleb Matthews  on 12/6/24.
-//
 import SwiftUI
 
 struct APContentView: View {
@@ -16,7 +10,7 @@ struct APContentView: View {
             if isLoaded {
                 MainAppView()
             } else {
-                LaunchScreenView(isLoaded: $isLoaded)
+                OnboardingView(isLoaded: $isLoaded)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             isLoaded = true
@@ -25,9 +19,17 @@ struct APContentView: View {
             }
         }
         .onAppear {
-            // Check and schedule notifications when the app appears
+            print("[DEBUG] APContentView appeared. Checking notifications and updates.")
+
+            // Check and schedule notifications
             NotificationManager.checkAndScheduleNotifications(context: context)
-            
+
+            // Listen for update notification
+            NotificationCenter.default.addObserver(forName: .appUpdateAvailable, object: nil, queue: .main) { _ in
+                print("[DEBUG] Update available notification received.")
+                showUpdateAlert = true
+            }
+
             // Check for app updates
             AppVersionManager.checkForUpdate(bundleId: "DeepDev.Apologist") { isUpdateAvailable in
                 DispatchQueue.main.async {
@@ -35,6 +37,7 @@ struct APContentView: View {
                 }
             }
         }
+
         .alert(isPresented: $showUpdateAlert) {
             Alert(
                 title: Text("Update Available"),
@@ -59,6 +62,10 @@ struct APContentView: View {
                 secondaryButton: .cancel(Text("Later"))
             )
         }
-
     }
+}
+
+// Extension to define the app update notification name
+extension Notification.Name {
+    static let appUpdateAvailable = Notification.Name("appUpdateAvailable")
 }

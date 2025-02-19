@@ -51,6 +51,7 @@
 		2404FAA82D0778DB0020CC4C /* CustomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA882D0778DB0020CC4C /* CustomErrors.swift */; };
 		2404FAA92D0778DB0020CC4C /* CompleteHabitIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FA892D0778DB0020CC4C /* CompleteHabitIntent.swift */; };
 		2404FAAE2D077A2E0020CC4C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2404FAAD2D077A2E0020CC4C /* ContentView.swift */; };
+		243AB97B2D566C2000705614 /* playground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243AB97A2D566C2000705614 /* playground.swift */; };
 		24426B752D3195E0005CD508 /* BibleListViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B742D3195E0005CD508 /* BibleListViews.swift */; };
 		24426B772D3195F5005CD508 /* ReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B762D3195F5005CD508 /* ReadingView.swift */; };
 		24426B792D319671005CD508 /* BibleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24426B782D319671005CD508 /* BibleModels.swift */; };
@@ -150,6 +151,7 @@
 		2404FA892D0778DB0020CC4C /* CompleteHabitIntent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompleteHabitIntent.swift; sourceTree = "<group>"; };
 		2404FAAD2D077A2E0020CC4C /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2404FAAF2D077CCE0020CC4C /* Apologist.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Apologist.entitlements; sourceTree = "<group>"; };
+		243AB97A2D566C2000705614 /* playground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playground.swift; sourceTree = "<group>"; };
 		24426B742D3195E0005CD508 /* BibleListViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleListViews.swift; sourceTree = "<group>"; };
 		24426B762D3195F5005CD508 /* ReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingView.swift; sourceTree = "<group>"; };
 		24426B782D319671005CD508 /* BibleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibleModels.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				24BAA55F2D113F1C0084D787 /* Journal */,
 				2404FAAF2D077CCE0020CC4C /* Apologist.entitlements */,
 				2404F9D52D040EE00020CC4C /* ApologistApp.swift */,
+				243AB97A2D566C2000705614 /* playground.swift */,
 				24A5C3BC2D11F1D700F2416A /* ApologistApp.xcdatamodeld */,
 				24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */,
 				2404F9D72D040EE00020CC4C /* APContentView.swift */,
@@ -644,6 +647,7 @@
 				2404FA082D0553850020CC4C /* HomePageView.swift in Sources */,
 				24E6B1FA2D288F96009CF258 /* NotificationManager.swift in Sources */,
 				2404FA002D0413630020CC4C /* LandingScreenView.swift in Sources */,
+				243AB97B2D566C2000705614 /* playground.swift in Sources */,
 				2404FA8B2D0778DB0020CC4C /* Color+Ext.swift in Sources */,
 				2404FAA92D0778DB0020CC4C /* CompleteHabitIntent.swift in Sources */,
 				24A5C3BB2D11EEA800F2416A /* GuidedJournalingView.swift in Sources */,

@@ -143,24 +143,34 @@ struct MainAppView: View {
             }
         }
         .transition(.asymmetric(
-            insertion: .moveWipe(direction: calculateSwipeDirection()),
+            insertion: .moveWipe(direction: selectedTab < previousTab ? .trailing : .leading),
             removal: .opacity
         ))
         .animation(.easeInOut(duration: 0.3), value: selectedTab)
         .onChange(of: selectedTab) { newValue in
-            previousTab = newValue // Update the previous tab when the selection changes
+            print("DEBUG: Tab changed from \(previousTab) to \(newValue)")
+            print("DEBUG: Transition direction: \(selectedTab < previousTab ? "Trailing (Right to Left)" : "Leading (Left to Right)")")
+            previousTab = newValue
         }
     }
 
-    // Determine the swipe direction based on the relative tab positions
-    private func calculateSwipeDirection() -> Edge {
-        if selectedTab > previousTab {
-            return .trailing // Swipe left to right (forward navigation)
-        } else {
-            return .leading // Swipe right to left (backward navigation)
+    private func calculateTransitionDirection() -> Edge {
+        print("DEBUG: Calculating direction - Previous: \(previousTab), Current: \(selectedTab)")
+        
+        // Going from greater to lesser (right to left)
+        if selectedTab < previousTab {
+            print("DEBUG: Moving RIGHT to LEFT (Current < Previous)")
+            return .leading  // Content slides in from the right
         }
+        // Going from lesser to greater (left to right)
+        else if selectedTab > previousTab {
+            print("DEBUG: Moving LEFT to RIGHT (Current > Previous)")
+            return .trailing // Content slides in from the left
+        }
+        
+        print("DEBUG: Default case - using leading edge")
+        return .leading
     }
-
 
     // MARK: - Navigation Logic
     @State private var swipeDirection: Edge = .trailing // Track swipe direction

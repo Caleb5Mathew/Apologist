@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
-//import Firebase
+import FirebaseCore
 import UserNotifications
 import StoreKit // Import StoreKit for review prompt functionality
+import SuperwallKit // Import SuperwallKit
 
 // Custom AppDelegate to enforce portrait orientation
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -16,20 +17,32 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Restrict to portrait mode only
         return .portrait
     }
+    
+    func application(_ application: UIApplication,
+                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        // Configure Firebase only once
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+        
+        // Configure Superwall with your API key
+        Superwall.configure(apiKey: "api-key")
+        
+        return true
+    }
 }
+//pk_e7000e4aad725f2d7a6eae7dc7633538b4c05d32c96afde3
 
 @main
 struct ApologistApp: App {
     // Use custom AppDelegate to control orientation
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var dataController = DataController() // Initialize DataController
+    @StateObject private var dataController = DataController() // ✅ Initialize DataController as @StateObject
+    @State private var showOnboarding = true // Manage onboarding state
     @State private var hasPromptedReview = false // Track if the review prompt has been shown
 
     // Initializer for app-wide setup
     init() {
-        // Configure Firebase
-//        FirebaseApp.configure()
-
         // Register the SecureDictionaryTransformer
         ValueTransformer.setValueTransformer(SecureDictionaryTransformer(), forName: NSValueTransformerName("SecureDictionaryTransformer"))
 
@@ -39,15 +52,28 @@ struct ApologistApp: App {
 
     var body: some Scene {
         WindowGroup {
-            APContentView()
-                .environment(\.managedObjectContext, dataController.container.viewContext) // Provide Core Data context
-                .environmentObject(dataController) // Provide DataController to child views
-                .onAppear {
-                    print("[DEBUG] App appeared. Starting timer to request a review.")
-                    startAppUsageTimer() // Start timer to prompt review
-                }
+            if showOnboarding {
+                OnboardingView(isLoaded: $showOnboarding)
+                    .environment(\.managedObjectContext, dataController.container.viewContext) // ✅ Inject Core Data context
+                    .environmentObject(dataController) // ✅ Inject DataController into OnboardingView
+            } else {
+                APContentView()
+                    .environment(\.managedObjectContext, dataController.container.viewContext) // ✅ Inject Core Data context
+                    .environmentObject(dataController) // ✅ Inject DataController into main content
+                    .onAppear {
+                        print("[DEBUG] Checking for app updates...")
+                        AppVersionManager.checkForUpdate(bundleId: "DeepDev.Apologist") { isUpdateAvailable, _ in
+                            DispatchQueue.main.async {
+                                if isUpdateAvailable {
+                                    NotificationCenter.default.post(name: .appUpdateAvailable, object: nil)
+                                }
+                            }
+                        }
+                    }
+            }
         }
     }
+
 
     // MARK: - Review Prompt Logic
 

@@ -1,3 +1,4 @@
+
 //
 //  Helpers.swift
 //  Apologist
@@ -202,8 +203,25 @@ struct ChatBubble: View {
                                             selectedPrompt = ClaudeAPI.shared.simplifyPrompt // Use Simplify prompt
                                         } else if buttonTitle == "Expand" {
                                             selectedPrompt = ClaudeAPI.shared.expandPrompt // Use Expand prompt
-                                        } else {
-                                            selectedPrompt = ClaudeAPI.shared.analogyPrompt // Use Analogy prompt (default)
+                                        } else if buttonTitle == "Analogy" {
+                                            // For "Analogy", include the memory context, last user question, and last assistant response
+                                            let memoryContext = ClaudeAPI.shared.memory.suffix(10).joined(separator: "\n") // Include broader memory context
+                                            let lastUserQuestion = messages.last(where: { $0.isUser })?.text ?? "No user question found."
+                                            let lastAssistantResponse = messages.last(where: { !$0.isUser })?.text ?? "No assistant response found."
+
+                                            selectedPrompt = """
+                                            \(ClaudeAPI.shared.analogyPrompt)
+
+                                            Based on the following previous messages:
+                                            \(memoryContext)
+
+                                            User's Last Question: \(lastUserQuestion)
+                                            Assistant's Last Response: \(lastAssistantResponse)
+                                            """
+                                        }
+
+ else {
+                                            selectedPrompt = ClaudeAPI.shared.analogyPrompt // Default to analogy if no match
                                         }
 
                                         let responseId = UUID() // Generate a new ID for the response
@@ -262,12 +280,13 @@ struct ChatBubble: View {
                                                             ]
                                                             messages[index].isResponseEnd = true
                                                         }
-
                                                     }
                                                 }
                                             }
                                         )
-                                    }) {
+                                    })
+
+ {
                                         Text(action.title)
                                             .font(.system(size: 14, weight: .bold))
                                             .kerning(1.5)
@@ -367,3 +386,4 @@ private func revealWordsGradually(for message: Message, isTyping: Binding<Bool>,
         }
     }
 }
+
