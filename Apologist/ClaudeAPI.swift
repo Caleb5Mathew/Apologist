@@ -9,7 +9,7 @@ import Foundation
 
 class ClaudeAPI {
     static let shared = ClaudeAPI()
-    // private let apiKey = ""
+     private let apiKey = "API-KEY"
     private let apiUrl = "https://api.anthropic.com/v1/messages"
     private let apiVersion = "2023-06-01"
     var memoryBuffer: [[String: Any]] = []
@@ -91,6 +91,7 @@ class ClaudeAPI {
     
     
     func sendStreamedQuery(_ query: String, onReceive: @escaping (String) -> Void, onComplete: @escaping () -> Void) {
+        var fullResponse = ""
         guard let url = URL(string: apiUrl) else {
             print("DEBUG: Invalid URL")
             return
@@ -185,32 +186,78 @@ class ClaudeAPI {
                     let jsonString = line.replacingOccurrences(of: "data: ", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
 
                     if let jsonData = jsonString.data(using: .utf8),
-                       let json = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-                       let delta = json["delta"] as? [String: Any],
-                       let textDelta = delta["text"] as? String {
+                       let json = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
 
-                        if isAnalogy {
-                            if !isAnalogySection && textDelta.lowercased().contains("consider") {
-                                isAnalogySection = true
-                                onReceive("\n\n--- Analogy Starts Below ---\n\n") // Send the separator to the UI
+                        // ✅ Handle 'delta' part (text chunks)
+                        if let delta = json["delta"] as? [String: Any],
+                           let textDelta = delta["text"] as? String {
+
+                            if isAnalogy {
+                                if !isAnalogySection && textDelta.lowercased().contains("consider") {
+                                    isAnalogySection = true
+                                    onReceive("\n\n--- Analogy Starts Below ---\n\n")
+                                }
+                                onReceive(textDelta)
+                            } else {
+                                onReceive(textDelta)
                             }
-                            // Send analogy-specific response chunks
-                            onReceive(textDelta)
-                        } else {
-                            // For regular responses, handle normally
-                            onReceive(textDelta)
-                        }
-                    }
-                }
-            }
 
-            
-            
+                            // Add to fullResponse
+                            fullResponse += textDelta
+                        }
+
+                        // ✅ Handle 'stop_reason'
+                        if let stopReason = json["stop_reason"] as? String, stopReason == "end_turn" {
+                            print("DEBUG: Stream ended. Full response collected:\n\(fullResponse)")
+
+                            if fullResponse.isEmpty {
+                                DispatchQueue.main.async {
+                                    onReceive("[No response received, try again.]")
+                                }
+                            }
+                        }
+
+                    } // END of jsonData block
+                } // END of starts(with: data)
+            }
+//            rawResponse.enumerateLines { line, _ in
+//                if line.starts(with: "data: ") {
+//                    let jsonString = line.replacingOccurrences(of: "data: ", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+//
+//                    if let jsonData = jsonString.data(using: .utf8),
+//                       let json = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+//                       let delta = json["delta"] as? [String: Any],
+//                       let textDelta = delta["text"] as? String {
+//
+//                        if isAnalogy {
+//                            if !isAnalogySection && textDelta.lowercased().contains("consider") {
+//                                isAnalogySection = true
+//                                onReceive("\n\n--- Analogy Starts Below ---\n\n") // Send the separator to the UI
+//                            }
+//                            // Send analogy-specific response chunks
+//                            onReceive(textDelta)
+//                        } else {
+//                            // For regular responses, handle normally
+//                            onReceive(textDelta)
+//                        }
+//                        fullResponse += textDelta
+//                    }
+//
+//                }
+//            }
+//
+//            
+//            
             
             
             DispatchQueue.main.async {
                 print("DEBUG: Streaming complete. Triggering memory updates and summarization.")
-
+                if !fullResponse.isEmpty {
+                    ClaudeAPI.shared.addToMemory(fullResponse)
+                    print("DEBUG: Final response added to memory: \(fullResponse)")
+                } else {
+                    print("DEBUG: No final response content.")
+                }
                 // ✅ Add assistant response to memory (applies to all query types)
                 if let lastAssistantMessage = ClaudeAPI.shared.memoryBuffer.last(where: { $0["role"] as? String == "assistant" })?["content"] as? String {
                     ClaudeAPI.shared.addToMemory(lastAssistantMessage)

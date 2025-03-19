@@ -85,6 +85,14 @@ struct ChatView: View {
                         .padding(.horizontal)
                         .padding(.top, 10) // Space above chat messages
                     }
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
+                    .gesture(
+                        DragGesture().onChanged { _ in
+                            hideKeyboard()
+                        }
+                    )
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [Color(hex: "#0B1E30"), Color(hex: "#1D4038")]),
@@ -118,14 +126,18 @@ struct ChatView: View {
                     .fill(Color.gray.opacity(0.8))
                     .frame(width: 36, height: 36)
                     .overlay(
-                        Text(Superwall.shared.subscriptionStatus == .active
-                             ? "∞"
-                             : "\(max(0, 5 - dailyQuestionCount))/5")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
+                        Group {
+                            if Superwall.shared.subscriptionStatus.isActive {
+                                Text("∞")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("\(max(0, 5 - dailyQuestionCount))/5")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                        }
                     )
-
-
                     .contentShape(Circle())
                     .onTapGesture {
                         showTooltip = true
@@ -133,6 +145,7 @@ struct ChatView: View {
                             showTooltip = false
                         }
                     }
+
                 
                 // Tooltip with fixed width
                 if showTooltip {
@@ -162,6 +175,7 @@ struct ChatView: View {
             .padding(.top, messages.isEmpty ? 10 : 15) // More top padding when showing messages
             .padding(messages.isEmpty ? .trailing : .leading, messages.isEmpty ? 20 : 25) // More leading padding when showing messages
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom) // 👈 Add this line
         .onAppear {
             resetDailyQuestionCountIfNeeded()
         }
@@ -216,7 +230,7 @@ struct ChatView: View {
         .padding(.vertical, 10)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [Color(hex: "#1D4038"), Color(hex: "#0B1E30")]),
+                gradient: Gradient(colors: [Color(hex: "#1D4038"), Color(hex: "#133b37")]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -247,7 +261,14 @@ struct ChatView: View {
             return
         }
 
-        let isSubscribed = Superwall.shared.subscriptionStatus == .active
+        let isSubscribed: Bool
+
+        switch Superwall.shared.subscriptionStatus {
+        case .active:
+            isSubscribed = true
+        default:
+            isSubscribed = false
+        }
         print("DEBUG: Subscription status from Superwall - \(isSubscribed ? "Active" : "Inactive")")
 
         let currentDate = Calendar.current.startOfDay(for: Date())
@@ -272,19 +293,20 @@ struct ChatView: View {
     }
 
 
-
     private func triggerPaywall() {
         print("DEBUG: Attempting to trigger paywall...")
 
-        Superwall.shared.register(event: "campaign_trigger") {
+        Superwall.shared.register(placement: "campaign_trigger") {
             print("DEBUG: Paywall triggered.")
 
-            if Superwall.shared.subscriptionStatus == .active {
+            switch Superwall.shared.subscriptionStatus {
+            case .active:
                 print("DEBUG: User subscribed after paywall. Allowing message.")
                 executeSendMessage()
-            } else {
+            default:
                 print("DEBUG: Paywall dismissed. Message NOT sent.")
             }
+
         }
     }
 

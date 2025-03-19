@@ -18,6 +18,8 @@ struct MainAppView: View {
     @State private var sortingOption: SortingOption = .byDate
     @State private var isSortingOrderAscending: Bool = false
     @State private var memoryBuffer: [String] = []
+    @State private var showHomeFile: Bool = false // ✅ Controls HomeFile display
+    @StateObject var viewModel = ViewModel() // ✅ Global tracking state
 
 //    @State private var db = Firestore.firestore() // Firestore reference
 //    @State private var currentUser: User? = Auth.auth().currentUser // Firebase user
@@ -29,27 +31,44 @@ var body: some View {
             VStack(spacing: 0) {
                 // Top Navigation Bar
                 HStack {
-                    // Menu Button
-                    Button(action: {
-                        withAnimation {
-                            showSidebar.toggle()
+                    // Single Home Button
+                    if !showHomeFile { // ✅ Hide the home button when HomeFile is active
+                        Button(action: {
+                            print("DEBUG: Home button tapped! Navigating to HomeFile...")
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let rootViewController = windowScene.windows.first?.rootViewController {
+                                    UIView.performWithoutAnimation {
+                                        showHomeFile = true
+                                        rootViewController.dismiss(animated: false)
+                                    }
+                                }
+                            }
+                        }) {
+                            Image(systemName: "house.fill")
+                                .font(.system(size: 22)) // Reduced Size for Consistency
+                                .foregroundColor(Color(hex: "#D4DDE1")) // Softer White/Gray for Consistency
+                                .padding(8)
+                                .background(Color.clear) // Transparent Background for Seamlessness
                         }
-                    }) {
-                        Image(systemName: "line.horizontal.3")
-                            .font(.system(size: 22))
-                            .foregroundColor(.white)
                     }
-                    .frame(width: 45, height: 45)
-                    .padding(.leading, -11)
+
+
+
+
+
 
                     Spacer()
 
-                    // Title
+                    // Enhanced "Apologist" Logo with Shadows and Modern Styling
                     Text("Apologist")
-                        .font(.custom("Georgia", size: 25))
-                        .foregroundColor(Color(hex: "#FFFFFF"))
-                        .frame(maxWidth: .infinity, alignment: .center)
+                        .font(.custom("Georgia", size: 28)) // Slightly larger for better visibility
+                        .foregroundColor(Color(hex: "#FFFFFF")) // White color for contrast
+                        .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 3) // Soft shadow for depth
+                        .shadow(color: Color.white.opacity(0.2), radius: 2, x: 0, y: 1) // Glow effect for elegance
+                        .frame(maxWidth: .infinity, alignment: .center) // Centered alignment
                         .offset(x: alignmentOffset()) // Adjust dynamically based on selectedTab
+
 
                     Spacer()
 
@@ -123,6 +142,12 @@ var body: some View {
     .safeAreaInset(edge: .bottom) {
         Color.clear.frame(height: 16)
     }
+    .fullScreenCover(isPresented: $showHomeFile) {
+        HomeFile(selectedTab: $selectedTab) // ✅ Updated to the correct reference
+    }
+
+
+    .environmentObject(viewModel) // ✅ Pass viewModel to all views
 }
 
 
@@ -134,11 +159,12 @@ var body: some View {
     // Track the previous tab
     @State private var previousTab: Int = 1 // Start with the default selectedTab
 
+    // ✅ Now HomeFilePage is just another tab in MainAppView, no fullScreenCover needed.
     var currentPage: some View {
         Group {
             switch selectedTab {
             case 0:
-                ContentView() // Habits
+                ContentView()
             case 1:
                 ChatView(
                     userInput: $userInput,
@@ -146,21 +172,20 @@ var body: some View {
                     isTyping: $isTyping
                 )
             case 2:
-                JournalHomeView() // Journaling
+                JournalHomeView()
             case 3:
-                HomeScreenView() // Feedback
+                HomeScreenView()
             case 4:
-                BibleView() // Bible
+                BibleView()
             default:
-                ContentView() // Default to Habits
+                EmptyView() // ✅ Prevents accidental overlap
             }
         }
-        .transition(.opacity) // Use a simple opacity transition
+        .transition(.opacity)
         .animation(.easeInOut(duration: 0.3), value: selectedTab)
-        .onChange(of: selectedTab) { newValue in
-            previousTab = newValue
-        }
+        .id(selectedTab) // ✅ Ensures UI updates when switching tabs
     }
+
 
     // MARK: - Navigation Logic
     @State private var swipeDirection: Edge = .trailing // Track swipe direction
@@ -234,6 +259,10 @@ struct WipeModifier: ViewModifier {
             .clipShape(WipeShape(direction: direction, progress: isActive ? 1 : 0))
             .animation(.easeInOut(duration: 0.3), value: isActive)
     }
+}
+
+class ViewModel: ObservableObject {
+    @Published var isHomeActive: Bool = false
 }
 
 struct WipeShape: Shape {
