@@ -1,4 +1,3 @@
-
 //
 //  DetailView.swift
 //  Habit

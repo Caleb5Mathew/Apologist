@@ -14,15 +14,15 @@ import Foundation
 //    static func checkForUpdate(bundleId: String, completion: @escaping (Bool) -> Void) {
 //        // Simulate App Store version as 2.0 for testing
 //        let appStoreVersion = "2.0"
-//        
+//
 //        // Get the current app version from Info.plist
 //        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0"
-//        
+//
 //        print("[DEBUG] Simulating App Store version: \(appStoreVersion), Current version: \(currentVersion)")
-//        
+//
 //        // Compare versions and determine if an update is available
 //        let isUpdateAvailable = currentVersion.compare(appStoreVersion, options: .numeric) == .orderedAscending
-//        
+//
 //        print("[DEBUG] Update available: \(isUpdateAvailable)")
 //        completion(isUpdateAvailable)
 //    }

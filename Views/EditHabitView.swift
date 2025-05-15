@@ -1,3 +1,287 @@
+////
+////  EditHabitView.swift
+////  Habit
+////
+//
+//import SwiftUI
+//import CoreData
+//import CoreHaptics
+//
+//struct EditHabitView: View {
+//    let habit: Habit?
+//
+//    @State private var title: String = ""
+//    @State private var motivation: String = ""
+//    @State private var color: HabitColor = HabitColor.randomColor
+//    @State private var regularity: String = "Everyday" // Default value
+//
+//    private let regularityOptions = ["Everyday", "Once a Week", "2 Times a Week", "3 Times a Week", "4 Times a Week", "5 Times a Week", "6 Times a Week"]
+//
+//    private var motivationPrompt = "Because I want to waste less time and become the best version of myself"
+//
+//    @State private var isPresentingColorsPicker = false
+//    @State private var isShowingWhyExplanation = false
+//    @State private var engine: CHHapticEngine?
+//
+//    @FocusState private var isNameTextFieldFocused
+//    @FocusState private var isMotivationTextFieldFocused
+//
+//    @EnvironmentObject var dataController: DataController
+//    @Environment(\.managedObjectContext) private var managedObjectContext
+//    @Environment(\.dismiss) var dismiss
+//
+//    init(habit: Habit?) {
+//        self.habit = habit
+//
+//        if let habit {
+//            _title = State(wrappedValue: habit.title)
+//            _motivation = State(wrappedValue: habit.motivation)
+//            _color = State(wrappedValue: habit.color)
+//            _regularity = State(wrappedValue: habit.regularity ?? "Everyday") // Load regularity from habit
+//        }
+//    }
+//
+//    var body: some View {
+//        NavigationStack {
+//            ScrollView {
+//                VStack(spacing: 30) { // Increased spacing between fields
+//                    nameTextField
+//                    whyTextField // Replaced motivationTextField
+//                    colorPicker
+//                    regularityPicker
+//                }
+//                .padding(.top, 20) // Reduce padding between the title and content
+//                .padding(.horizontal)
+//            }
+//            .navigationTitle(habit == nil ? "Add New Habit" : "Edit a Habit") // Use navigationTitle
+//            .navigationBarTitleDisplayMode(.inline) // Compact navigation bar height
+//            
+//            // Toolbar background and styling
+//            .toolbarBackground(Color(hex: "#1F5F4E"), for: .navigationBar) // Emerald Green background
+//            .toolbarBackground(.visible, for: .navigationBar)
+//            .toolbarColorScheme(.light, for: .navigationBar) // Force light color scheme
+//            
+//            .toolbar {
+//                ToolbarItem(placement: .principal) {
+//                    Text(habit == nil ? "Add New Habit" : "Edit a Habit")
+//                        .font(.headline)
+//                        .foregroundColor(.white) // Title to white
+//                }
+//                saveToolbarItem
+//                if habit != nil {
+//                    deleteToolbarItem
+//                }
+//            }
+//        }
+//        .sheet(isPresented: $isPresentingColorsPicker) {
+//            ColorsPickerView(selectedColor: $color)
+//        }
+//        .onAppear {
+//            prepareHaptics()
+//            if habit == nil {
+//                isNameTextFieldFocused = true
+//            }
+//        }
+//    }
+//
+//    var nameTextField: some View {
+//        VStack(spacing: 8) { // Adjust spacing between elements in this section
+//            HStack {
+//                Text("NAME")
+//                    .font(.caption.bold())
+//                    .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for text
+//                Spacer()
+//            }
+//            .accessibilityHidden(true)
+//            TextField("Name", text: $title, prompt: Text("Read a book, Meditate etc.")
+//                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Placeholder text
+//                .foregroundColor(Color(hex: "#D4DDE1")) // Text color
+//                .focused($isNameTextFieldFocused)
+//        }
+//    }
+//
+//    var whyTextField: some View { // Updated field
+//        VStack(spacing: 8) {
+//            HStack(spacing: 4) {
+//                Text("WHY?")
+//                    .font(.caption.bold())
+//                    .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
+//                Image(systemName: "questionmark.circle")
+//                    .foregroundColor(Color(hex: "#D4DDE1"))
+//                    .onTapGesture {
+//                        withAnimation {
+//                            isShowingWhyExplanation.toggle()
+//                        }
+//                    }
+//                Spacer()
+//            }
+//            .accessibilityHidden(true)
+//
+//            if isShowingWhyExplanation {
+//                Text("Having a strong why behind your goal is crucial—it keeps you motivated and aligned with your purpose.")
+//                    .font(.footnote)
+//                    .foregroundColor(Color(hex: "#D4DDE1").opacity(0.8))
+//                    .transition(.opacity)
+//            }
+//
+//            TextField("Why?", text: $motivation, prompt: Text(motivationPrompt)
+//                .foregroundColor(Color(hex: "#D4DDE1").opacity(0.6))) // Updated placeholder
+//                .focused($isMotivationTextFieldFocused)
+//                .font(.callout)
+//                .foregroundColor(Color(hex: "#D4DDE1")) // Text color
+//        }
+//    }
+//
+//    var colorPicker: some View {
+//        HStack {
+//            Text("Color")
+//                .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for text
+//            Spacer()
+//            Circle()
+//                .frame(height: 20)
+//                .foregroundColor(Color(color))
+//        }
+//        .onTapGesture {
+//            isPresentingColorsPicker = true
+//        }
+//        .accessibilityHidden(true)
+//    }
+//
+//    var regularityPicker: some View {
+//        VStack(spacing: 8) {
+//            HStack {
+//                Text("REGULARITY")
+//                    .font(.caption.bold())
+//                    .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver
+//                Spacer()
+//            }
+//            Picker("Regularity", selection: $regularity) {
+//                ForEach(regularityOptions, id: \ .self) { option in
+//                    Text(option)
+//                        .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for picker options
+//                        .tag(option)
+//                }
+//            }
+//            .pickerStyle(MenuPickerStyle())
+//        }
+//    }
+//
+//    var saveToolbarItem: some ToolbarContent {
+//        ToolbarItem(placement: .confirmationAction) {
+//            Button("Save") {
+//                save()
+//                dismiss()
+//            }
+//            .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for Save button
+//            .accessibilityIdentifier("saveHabit")
+//        }
+//    }
+//
+//    var deleteToolbarItem: some ToolbarContent {
+//        ToolbarItem(placement: .bottomBar) {
+//            Button(role: .destructive) {
+//                delete()
+//                dismiss()
+//            } label: {
+//                Text("Delete Habit")
+//                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow for Delete button
+//            }
+//            .accessibilityIdentifier("deleteHabit")
+//        }
+//    }
+//
+//    func save() {
+//        withAnimation {
+//            triggerHapticFeedback()
+//            if let habit {
+//                habit.title = title
+//                habit.motivation = motivation
+//                habit.color = color
+//                habit.regularity = regularity
+//            } else {
+//                let newHabit = Habit(context: managedObjectContext)
+//                newHabit.title = title
+//                newHabit.motivation = motivation
+//                newHabit.color = color
+//                newHabit.regularity = regularity
+//                newHabit.creationDate = Date()
+//            }
+//            dataController.save()
+//
+//            // Fetch and print the total number of habits
+//            let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
+//            do {
+//                let totalHabits = try managedObjectContext.fetch(fetchRequest).count
+//                print("Total Habits: \(totalHabits)")
+//
+//                if totalHabits >= 2 {
+//                    print("Scheduling notifications for 2 or more habits.")
+//                    NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
+//                } else {
+//                    print("Not enough habits to trigger notifications.")
+//                }
+//            } catch {
+//                print("Error fetching habits: \(error.localizedDescription)")
+//            }
+//
+//            // Always check and schedule notifications after saving
+//            NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
+//        }
+//    }
+//
+//
+//
+//
+//
+//
+//    func delete() {
+//        withAnimation {
+//            if let habit {
+//                dataController.delete(habit)
+//                dataController.save()
+//
+//                // Fetch and print the total number of habits
+//                let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
+//                do {
+//                    let totalHabits = try managedObjectContext.fetch(fetchRequest).count
+//                    print("Total Habits: \(totalHabits)")
+//                } catch {
+//                    print("Error fetching habits: \(error.localizedDescription)")
+//                }
+//
+//                // Schedule notifications after deleting
+//                NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
+//            }
+//        }
+//        dismiss()
+//    }
+//
+//
+//
+//    func prepareHaptics() {
+//        do {
+//            engine = try CHHapticEngine()
+//            try engine?.start()
+//        } catch {
+//            print("Haptic engine failed to start: \(error.localizedDescription)")
+//        }
+//    }
+//
+//    func triggerHapticFeedback() {
+//        let generator = UINotificationFeedbackGenerator()
+//        generator.notificationOccurred(.success)
+//    }
+//}
+//
+//struct HabitView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        EditHabitView(habit: Habit.example)
+//            .previewLayout(.sizeThatFits)
+//    }
+//}
+
+
+
 //
 //  EditHabitView.swift
 //  Habit
@@ -9,7 +293,6 @@ import CoreHaptics
 
 struct EditHabitView: View {
     let habit: Habit?
-
     @State private var title: String = ""
     @State private var motivation: String = ""
     @State private var color: HabitColor = HabitColor.randomColor
@@ -27,12 +310,14 @@ struct EditHabitView: View {
     @FocusState private var isMotivationTextFieldFocused
 
     @EnvironmentObject var dataController: DataController
-    @Environment(\.managedObjectContext) private var managedObjectContext
+    @Environment(\.managedObjectContext) var managedObjectContext
     @Environment(\.dismiss) var dismiss
 
     init(habit: Habit?) {
         self.habit = habit
-
+        print("DEBUG: EditHabitView initialized")
+        print("DEBUG: managedObjectContext at init = \(managedObjectContext)")
+                
         if let habit {
             _title = State(wrappedValue: habit.title)
             _motivation = State(wrappedValue: habit.motivation)
@@ -192,42 +477,78 @@ struct EditHabitView: View {
 
     func save() {
         withAnimation {
+            print("DEBUG: Entering save() in EditHabitView")
+            
+            // ✅ Check if managedObjectContext is nil before proceeding
+            if managedObjectContext == nil {
+                print("❌ ERROR: managedObjectContext is NIL inside save()!")
+                return
+            } else {
+            }
+
             triggerHapticFeedback()
+
             if let habit {
+                print("✅ Editing existing habit: \(habit)")
                 habit.title = title
                 habit.motivation = motivation
                 habit.color = color
                 habit.regularity = regularity
             } else {
+                print("🆕 Creating a new Habit object...")
+
+                // ✅ Check if `Habit` is properly registered in Core Data
+                let entityDescription = NSEntityDescription.entity(forEntityName: "Habit", in: managedObjectContext)
+
+                if entityDescription == nil {
+                    print("❌ ERROR: Entity 'Habit' is NOT registered in Core Data!")
+                    return
+                } else {
+                    print("✅ Entity 'Habit' is properly registered: \(entityDescription!)")
+                }
+
                 let newHabit = Habit(context: managedObjectContext)
                 newHabit.title = title
                 newHabit.motivation = motivation
                 newHabit.color = color
                 newHabit.regularity = regularity
                 newHabit.creationDate = Date()
+                
+                print("✅ Successfully created new Habit instance: \(newHabit)")
             }
-            dataController.save()
 
-            // Fetch and print the total number of habits
+            print("🔄 Attempting to SAVE context...")
+            do {
+                try managedObjectContext.save()
+                print("✅ Successfully SAVED habit to Core Data!")
+            } catch {
+                print("❌ ERROR: Failed to SAVE habit to Core Data: \(error.localizedDescription)")
+                return
+            }
+
+            // ✅ Check if the fetch request works
+            print("🔍 Fetching all habits to verify save...")
             let fetchRequest: NSFetchRequest<Habit> = Habit.fetchRequest()
             do {
                 let totalHabits = try managedObjectContext.fetch(fetchRequest).count
-                print("Total Habits: \(totalHabits)")
+                print("✅ Total Habits in Core Data: \(totalHabits)")
 
                 if totalHabits >= 2 {
-                    print("Scheduling notifications for 2 or more habits.")
+                    print("📅 Scheduling notifications for 2 or more habits...")
                     NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
                 } else {
-                    print("Not enough habits to trigger notifications.")
+                    print("ℹ️ Not enough habits to trigger notifications.")
                 }
             } catch {
-                print("Error fetching habits: \(error.localizedDescription)")
+                print("❌ ERROR: Failed to fetch habits: \(error.localizedDescription)")
             }
 
-            // Always check and schedule notifications after saving
+            // ✅ Final Check: Always ensure notifications are scheduled
+            print("📅 Running NotificationManager to ensure scheduling...")
             NotificationManager.checkAndScheduleNotifications(context: managedObjectContext)
         }
     }
+
 
 
 

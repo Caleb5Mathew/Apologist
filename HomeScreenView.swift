@@ -1,13 +1,4 @@
 
-
-//
-//  HomeScreenView.swift
-//  Apologist
-//
-//  Created by Caleb Matthews on 12/20/24.
-//
-
-
 //
 //  HomeScreenView.swift
 //  Apologist
@@ -16,7 +7,7 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
+//import FirebaseFirestore
 
 struct HomeScreenView: View {
     @State private var feedback: String = "" {
@@ -47,6 +38,8 @@ struct HomeScreenView: View {
             }
 
             VStack(spacing: 20) {
+                // Logo at the top
+
                 // Header
                 Text("Feedback")
                     .font(.largeTitle.bold())
@@ -109,7 +102,7 @@ struct HomeScreenView: View {
                     // Submit Button
                     Button(action: {
                         print("DEBUG: Submit button clicked")
-                        sendFeedbackToFirebase()
+//                        sendFeedbackToFirebase()
                         withAnimation {
                             isSubmitted = true
                             feedback = ""
@@ -138,26 +131,26 @@ struct HomeScreenView: View {
         .navigationBarHidden(true)
     }
 
-    func sendFeedbackToFirebase() {
-        guard !feedback.trimmingCharacters(in: .whitespaces).isEmpty else {
-            print("DEBUG: Error - Feedback is empty.")
-            return
-        }
-
-        print("DEBUG: Preparing to send feedback to Firestore")
-        let db = Firestore.firestore()
-
-        let feedbackData: [String: Any] = [
-            "feedback": feedback,
-            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
-        ]
-
-        db.collection("feedbacks").addDocument(data: feedbackData) { error in
-            if let error = error {
-                print("DEBUG: Error saving feedback - \(error.localizedDescription)")
-            } else {
-                print("DEBUG: Feedback successfully saved to Firestore!")
-            }
-        }
-    }
+//    func sendFeedbackToFirebase() {
+//        guard !feedback.trimmingCharacters(in: .whitespaces).isEmpty else {
+//            print("DEBUG: Error - Feedback is empty.")
+//            return
+//        }
+//
+//        print("DEBUG: Preparing to send feedback to Firestore")
+//        let db = Firestore.firestore()
+//
+//        let feedbackData: [String: Any] = [
+//            "feedback": feedback,
+//            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
+//        ]
+//
+//        db.collection("feedbacks").addDocument(data: feedbackData) { error in
+//            if let error = error {
+//                print("DEBUG: Error saving feedback - \(error.localizedDescription)")
+//            } else {
+//                print("DEBUG: Feedback successfully saved to Firestore!")
+//            }
+//        }
+//    }
 }

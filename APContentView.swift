@@ -10,7 +10,7 @@ struct APContentView: View {
             if isLoaded {
                 MainAppView()
             } else {
-                LaunchScreenView(isLoaded: $isLoaded)
+                OnboardingView(isLoaded: $isLoaded)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             isLoaded = true

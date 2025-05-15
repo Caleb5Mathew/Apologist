@@ -1,4 +1,3 @@
-
 //
 //  MainAppView.swift
 //  Apologist
@@ -19,114 +18,153 @@ struct MainAppView: View {
     @State private var sortingOption: SortingOption = .byDate
     @State private var isSortingOrderAscending: Bool = false
     @State private var memoryBuffer: [String] = []
+    @State private var showHomeFile: Bool = false // ✅ Controls HomeFile display
+    @StateObject var viewModel = ViewModel() // ✅ Global tracking state
 
 //    @State private var db = Firestore.firestore() // Firestore reference
 //    @State private var currentUser: User? = Auth.auth().currentUser // Firebase user
 
-    var body: some View {
-        ZStack {
-            NavigationView {
-                VStack(spacing: 0) {
-                    HStack {
-                        // Menu Button
+
+var body: some View {
+    ZStack {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Top Navigation Bar
+                HStack {
+                    // Single Home Button
+                    if !showHomeFile { // ✅ Hide the home button when HomeFile is active
                         Button(action: {
-                            withAnimation {
-                                showSidebar.toggle()
+                            print("DEBUG: Home button tapped! Navigating to HomeFile...")
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let rootViewController = windowScene.windows.first?.rootViewController {
+                                    UIView.performWithoutAnimation {
+                                        showHomeFile = true
+                                        rootViewController.dismiss(animated: false)
+                                    }
+                                }
                             }
                         }) {
-                            Image(systemName: "line.horizontal.3")
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
+                            Image(systemName: "house.fill")
+                                .font(.system(size: 22)) // Reduced Size for Consistency
+                                .foregroundColor(Color(hex: "#D4DDE1")) // Softer White/Gray for Consistency
+                                .padding(8)
+                                .background(Color.clear) // Transparent Background for Seamlessness
                         }
-                        .frame(width: 45, height: 45)
-                        .padding(.leading, -11)
+                    }
 
-                        Spacer()
 
-                        // Title
-                        Text("Apologist")
-                            .font(.custom("Georgia", size: 25))
-                            .foregroundColor(Color(hex: "#FFFFFF"))
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .offset(x: alignmentOffset()) // Adjust dynamically based on selectedTab
 
-                        Spacer()
 
-                        // Conditionally display Plus Icon and Sort Menu for Habit Page
-                        if selectedTab == 0 {
-                            HStack(spacing: 16) {
-                                // Sort Menu
-                                Menu {
-                                    Picker("Sorting", selection: $sortingOption) {
-                                        ForEach(SortingOption.allCases, id: \.self) { option in
-                                            Text(option.rawValue).tag(option)
-                                        }
+
+
+                    Spacer()
+
+                    // Enhanced "Apologist" Logo with Shadows and Modern Styling
+                    Text("Apologist")
+                        .font(.custom("Georgia", size: 28)) // Slightly larger for better visibility
+                        .foregroundColor(Color(hex: "#FFFFFF")) // White color for contrast
+                        .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 3) // Soft shadow for depth
+                        .shadow(color: Color.white.opacity(0.2), radius: 2, x: 0, y: 1) // Glow effect for elegance
+                        .frame(maxWidth: .infinity, alignment: .center) // Centered alignment
+                        .offset(x: alignmentOffset()) // Adjust dynamically based on selectedTab
+
+
+                    Spacer()
+
+                    // Conditionally display Plus Icon and Sort Menu for Habit Page
+                    if selectedTab == 0 {
+                        HStack(spacing: 16) {
+                            // Sort Menu
+                            Menu {
+                                Picker("Sorting", selection: $sortingOption) {
+                                    ForEach(SortingOption.allCases, id: \.self) { option in
+                                        Text(option.rawValue).tag(option)
                                     }
-                                    Button(action: {
-                                        isSortingOrderAscending.toggle()
-                                    }) {
-                                        Text("Toggle Sort Order")
-                                    }
-                                } label: {
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(Color(hex: "#D4DDE1"))
                                 }
-
-                                // Plus Icon
                                 Button(action: {
-                                    isPresentingEditHabitView = true
+                                    isSortingOrderAscending.toggle()
                                 }) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(Color(hex: "#F8C471"))
+                                    Text("Toggle Sort Order")
                                 }
-                                .sheet(isPresented: $isPresentingEditHabitView) {
-                                    EditHabitView(habit: nil)
-                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(Color(hex: "#D4DDE1"))
+                            }
+
+                            // Plus Icon
+                            Button(action: {
+                                isPresentingEditHabitView = true
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(Color(hex: "#F8C471"))
+                            }
+                            .sheet(isPresented: $isPresentingEditHabitView) {
+                                EditHabitView(habit: nil)
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 0)
-                    .background(Color(hex: "#0B1E30"))
-
-                    VStack(spacing: 0) {
-                        currentPage
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                        // Bottom Navigation Bar
-                        BottomNavigationBar(selectedTab: $selectedTab)
-                            .frame(height: 60)
-                            .background(Color(hex: "#0B1E30"))
-                    }
                 }
-                .background(Color(hex: "#0B1E30").ignoresSafeArea())
-                .navigationBarHidden(true)
-                .preferredColorScheme(.dark)
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
-
-            // Sidebar
-            if showSidebar {
-                SidebarMenu(showSidebar: $showSidebar, onOptionSelected: { option in
-                    handleSidebarSelection(option)
-                })
-                .transition(.move(edge: .leading))
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .background(Color(hex: "#0B1E30"))
                 .zIndex(1)
+
+                VStack(spacing: 0) {
+                    currentPage
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(hex: "#0B1E30"))
+
+                    // Bottom Navigation Bar
+                    BottomNavigationBar(selectedTab: $selectedTab)
+                        .frame(height: 50)
+                        .background(Color(hex: "#0B1E30"))
+                }
             }
+            .background(Color(hex: "#0B1E30"))
+            .navigationBarHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+
+        // Sidebar
+        if showSidebar {
+            SidebarMenu(showSidebar: $showSidebar, onOptionSelected: { option in
+                handleSidebarSelection(option)
+            })
+            .transition(.move(edge: .leading))
+            .zIndex(1)
         }
     }
-    
-    
+    .safeAreaInset(edge: .bottom) {
+        Color.clear.frame(height: 16)
+    }
+    .fullScreenCover(isPresented: $showHomeFile) {
+        HomeFile(selectedTab: $selectedTab) // ✅ Updated to the correct reference
+    }
+
+
+    .environmentObject(viewModel) // ✅ Pass viewModel to all views
+}
+
+
+
+
+
+
+
     // Track the previous tab
     @State private var previousTab: Int = 1 // Start with the default selectedTab
 
+    // ✅ Now HomeFilePage is just another tab in MainAppView, no fullScreenCover needed.
     var currentPage: some View {
         Group {
             switch selectedTab {
             case 0:
-                ContentView() // Habits
+                ContentView()
             case 1:
                 ChatView(
                     userInput: $userInput,
@@ -134,44 +172,20 @@ struct MainAppView: View {
                     isTyping: $isTyping
                 )
             case 2:
-                JournalHomeView() // Journaling
+                JournalHomeView()
             case 3:
-                HomeScreenView() // Feedback
+                HomeScreenView()
             case 4:
-                BibleView() // Bible
+                BibleView()
             default:
-                ContentView() // Default to Habits
+                EmptyView() // ✅ Prevents accidental overlap
             }
         }
-        .transition(.asymmetric(
-            insertion: .moveWipe(direction: selectedTab < previousTab ? .trailing : .leading),
-            removal: .opacity
-        ))
+        .transition(.opacity)
         .animation(.easeInOut(duration: 0.3), value: selectedTab)
-        .onChange(of: selectedTab) { newValue in
-            print("DEBUG: Tab changed from \(previousTab) to \(newValue)")
-            print("DEBUG: Transition direction: \(selectedTab < previousTab ? "Trailing (Right to Left)" : "Leading (Left to Right)")")
-            previousTab = newValue
-        }
+        .id(selectedTab) // ✅ Ensures UI updates when switching tabs
     }
 
-    private func calculateTransitionDirection() -> Edge {
-        print("DEBUG: Calculating direction - Previous: \(previousTab), Current: \(selectedTab)")
-        
-        // Going from greater to lesser (right to left)
-        if selectedTab < previousTab {
-            print("DEBUG: Moving RIGHT to LEFT (Current < Previous)")
-            return .leading  // Content slides in from the right
-        }
-        // Going from lesser to greater (left to right)
-        else if selectedTab > previousTab {
-            print("DEBUG: Moving LEFT to RIGHT (Current > Previous)")
-            return .trailing // Content slides in from the left
-        }
-        
-        print("DEBUG: Default case - using leading edge")
-        return .leading
-    }
 
     // MARK: - Navigation Logic
     @State private var swipeDirection: Edge = .trailing // Track swipe direction
@@ -245,6 +259,10 @@ struct WipeModifier: ViewModifier {
             .clipShape(WipeShape(direction: direction, progress: isActive ? 1 : 0))
             .animation(.easeInOut(duration: 0.3), value: isActive)
     }
+}
+
+class ViewModel: ObservableObject {
+    @Published var isHomeActive: Bool = false
 }
 
 struct WipeShape: Shape {
