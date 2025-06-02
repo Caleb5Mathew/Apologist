@@ -512,7 +512,7 @@ import Foundation
 
 class ClaudeAPI {
     static let shared = ClaudeAPI()
-     private let apiKey = "ANTHROPIC_API_KEY"
+     private let apiKey = ""
     private let apiUrl = "https://api.anthropic.com/v1/messages"
     private let apiVersion = "2023-06-01"
     var memoryBuffer: [[String: Any]] = []

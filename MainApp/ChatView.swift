@@ -527,6 +527,8 @@ import SwiftUI
 import FirebaseFirestore
 
 struct ChatView: View {
+    
+    @State private var conversationId = UUID().uuidString
     @Binding var userInput: String
     @Binding var messages: [Message]
     @Binding var isTyping: Bool
@@ -831,12 +833,12 @@ struct ChatView: View {
         
         let userMessage = Message(id: UUID(), text: userInput, revealedText: userInput, isUser: true)
         messages.append(userMessage)
+        saveMessageToFirestore(userMessage)
         print("DEBUG: User message added: \(userMessage)")
         
         ClaudeAPI.shared.addToMemory(userInput)
         print("DEBUG: Memory after adding user input: \(ClaudeAPI.shared.memory)")
         
-        saveQuestionToFirestore(question: userInput)
         
         userInput = ""
         
@@ -883,6 +885,7 @@ struct ChatView: View {
                                 Action(title: "Dig Deeper", action: { print("DEBUG: Tapped Dig Deeper for message ID: \(responseId)") })
                             ]
                             messages[index].isResponseEnd = true
+                            saveMessageToFirestore(messages[index])
                             print("DEBUG: Actions assigned to message ID \(responseId): \(messages[index].actions?.map { $0.title } ?? [])")
                         }
                     } else {
@@ -933,22 +936,24 @@ struct ChatView: View {
         }
     }
     // Function to save questions to Firestore
-    func saveQuestionToFirestore(question: String) {
-        let db = Firestore.firestore()
-        
-        let questionData: [String: Any] = [
-            "question": question,
-            "timestamp": Timestamp(date: Date()) // Use Firestore's Timestamp
-        ]
-        
-        db.collection("Questions").addDocument(data: questionData) { error in
-            if let error = error {
-                print("Error saving question: \(error.localizedDescription)")
-            } else {
-                print("Question successfully saved to Firestore!")
-            }
+    // General message‐logger for both user & AI
+    private func saveMessageToFirestore(_ message: Message) {
+      let messageData: [String: Any] = [
+        "conversationId": conversationId,
+        "role":       message.isUser ? "user" : "assistant",
+        "text":       message.text,
+        "timestamp":  Timestamp(date: Date())
+      ]
+      db.collection("Messages")
+        .addDocument(data: messageData) { error in
+          if let e = error {
+            print("❌ Firestore write error:", e.localizedDescription)
+          } else {
+            print("✅ Logged message:", messageData)
+          }
         }
     }
+
     
     private func scrollToLast(scrollView: ScrollViewProxy) {
         DispatchQueue.main.async {
