@@ -50,6 +50,7 @@ struct ChatView: View {
 
                                     ChatBubble(
                                         messages: $messages,
+                                        isTyping: $isTyping,
                                         message: message,
                                         isConsecutive: isConsecutive,
                                         showCursor: showCursor && !message.isUser,
@@ -91,6 +92,10 @@ struct ChatView: View {
         .onDisappear {
             generationTimer?.invalidate()
             generationTimer = nil
+            showCursor = false
+            if !ClaudeAPI.shared.isRequestInProgress {
+                isTyping = false
+            }
         }
     }
 
@@ -161,6 +166,7 @@ struct ChatView: View {
         HStack(alignment: .bottom, spacing: 10) {
             ZStack(alignment: .bottomTrailing) {
                 TextField("Ask a question...", text: $userInput, axis: .vertical)
+                    .accessibilityIdentifier("chat.question")
                     .lineLimit(1...6)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -203,6 +209,9 @@ struct ChatView: View {
                     )
                     .clipShape(Circle())
             }
+            .accessibilityIdentifier("chat.send")
+            .disabled(isTyping || userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .opacity(isTyping ? 0.5 : 1)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -264,10 +273,10 @@ struct ChatView: View {
 
     private func sendMessage() {
         generationTimer?.invalidate()
-        print("DEBUG: Timer invalidated.")
+
+        guard !isTyping else { return }
 
         guard !userInput.trimmingCharacters(in: .whitespaces).isEmpty else {
-            print("DEBUG: User input is empty. Exiting sendMessage.")
             return
         }
 
@@ -343,7 +352,6 @@ struct ChatView: View {
 
         let userMessage = Message(id: UUID(), text: userInput, revealedText: userInput, isUser: true)
         messages.append(userMessage)
-        print("DEBUG: User message added: \(userMessage)")
 
         saveQuestionToFirestore(question: userInput)
         userInput = ""
@@ -355,10 +363,9 @@ struct ChatView: View {
         let responseId = UUID()
         let responseMessage = Message(id: responseId, text: "", revealedText: "", isUser: false)
         messages.append(responseMessage)
-        print("DEBUG: Response message placeholder added with ID \(responseId)")
 
         isTyping = true
-        print("DEBUG: Typing indicator set to true.")
+        var requestFailed = false
 
         ClaudeAPI.shared.sendStreamedQuery(
             userMessage.text,
@@ -369,32 +376,33 @@ struct ChatView: View {
                             messages[index].text = ""
                         }
                         messages[index].text += chunk
-                        print("DEBUG: Received chunk for response ID \(responseId): \(chunk)")
                     }
-                } else {
-                    print("DEBUG: Failed to find response message for chunk: \(chunk)")
+                }
+            },
+            onError: { message in
+                requestFailed = true
+                if let index = messages.firstIndex(where: { $0.id == responseId }) {
+                    messages[index].text = message
+                    messages[index].revealedText = ""
                 }
             },
             onComplete: {
                 DispatchQueue.main.async {
                     isTyping = false
-                    print("DEBUG: Typing indicator set to false. Starting word reveal for message ID \(responseId).")
                     if let index = messages.firstIndex(where: { $0.id == responseId }) {
                         revealWordsGradually(for: responseId) {
-                            messages[index].actions = [
-                                Action(title: "Analogy", action: { print("DEBUG: Tapped Analogy for message ID: \(responseId)") }),
-                                Action(title: "Simplify", action: { print("DEBUG: Tapped Simplify for message ID: \(responseId)") }),
-                                Action(title: "Expand", action: { print("DEBUG: Tapped Expand for message ID: \(responseId)") }),
-                                Action(title: "Dig Deeper", action: { print("DEBUG: Tapped Dig Deeper for message ID: \(responseId)") })
-                            ]
+                            if !requestFailed {
+                                messages[index].actions = [
+                                    Action(title: "Analogy", action: { }),
+                                    Action(title: "Simplify", action: { }),
+                                    Action(title: "Expand", action: { }),
+                                    Action(title: "Dig Deeper", action: { })
+                                ]
+                            }
                             messages[index].isResponseEnd = true
-                            print("DEBUG: Actions assigned to message ID \(responseId): \(messages[index].actions?.map { $0.title } ?? [])")
                         }
-                    } else {
-                        print("DEBUG: Could not find message or already has response for ID \(responseId)")
                     }
                     messages = messages.map { $0 }
-                    print("DEBUG: Messages array updated to trigger UI refresh. Current messages:\n\(messages)")
                 }
             }
         )
@@ -461,7 +469,12 @@ struct ChatView: View {
 
     private func revealWordsGradually(for messageId: UUID, typingSpeed: TimeInterval = 0.013, onComplete: @escaping () -> Void = {}) {
         generationTimer?.invalidate()
-        guard let index = messages.firstIndex(where: { $0.id == messageId }) else { return }
+        guard let index = messages.firstIndex(where: { $0.id == messageId }) else {
+            isTyping = false
+            showCursor = false
+            onComplete()
+            return
+        }
 
         let fullText = messages[index].text
         let characters = Array(fullText)
@@ -474,7 +487,14 @@ struct ChatView: View {
         let timer = Timer.scheduledTimer(withTimeInterval: typingSpeed, repeats: true) { timer in
             DispatchQueue.main.async {
                 guard timer.isValid else { return }
-                guard index < messages.count else { timer.invalidate(); return }
+                guard index < messages.count else {
+                    timer.invalidate()
+                    generationTimer = nil
+                    isTyping = false
+                    showCursor = false
+                    onComplete()
+                    return
+                }
 
                 if currentIndex < characters.count {
                     if index < messages.count {
