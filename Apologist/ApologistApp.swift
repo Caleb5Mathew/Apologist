@@ -6,10 +6,21 @@
 //
 
 import SwiftUI
+import FirebaseAppCheck
 import FirebaseCore
 import UserNotifications
 import StoreKit // Import StoreKit for review prompt functionality
 import SuperwallKit // Import SuperwallKit
+
+final class ApologistAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        #if DEBUG && targetEnvironment(simulator)
+        return AppCheckDebugProvider(app: app)
+        #else
+        AppAttestProvider(app: app)
+        #endif
+    }
+}
 
 // Custom AppDelegate to enforce portrait orientation
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -22,6 +33,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Configure Firebase only once
         if FirebaseApp.app() == nil {
+            AppCheck.setAppCheckProviderFactory(ApologistAppCheckProviderFactory())
             FirebaseApp.configure()
         }
         

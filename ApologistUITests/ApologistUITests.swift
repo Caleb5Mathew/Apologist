@@ -1,41 +1,33 @@
-//
-//  ApologistUITests.swift
-//  ApologistUITests
-//
-//  Created by Caleb Matthews  on 12/6/24.
-//
-
 import XCTest
 
 final class ApologistUITests: XCTestCase {
-
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testQuestionReceivesRealResponse() throws {
         let app = XCUIApplication()
+        app.launchArguments = [
+            "-hasCompletedOnboarding", "YES",
+            "-dailyQuestionCount", "0"
+        ]
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
+        let questionField = app.textFields["chat.question"]
+        XCTAssertTrue(questionField.waitForExistence(timeout: 10))
+        questionField.tap()
+        questionField.typeText("What does grace mean in Christianity?")
 
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+        let sendButton = app.buttons["chat.send"]
+        XCTAssertTrue(sendButton.isEnabled)
+        sendButton.tap()
+
+        let response = app.staticTexts.matching(identifier: "chat.response").firstMatch
+        let usableAnswer = NSPredicate(
+            format: "label.length > 20 AND NOT label CONTAINS[c] %@",
+            "couldn't"
+        )
+        expectation(for: usableAnswer, evaluatedWith: response)
+        waitForExpectations(timeout: 60)
     }
 }

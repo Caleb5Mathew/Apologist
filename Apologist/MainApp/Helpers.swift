@@ -116,6 +116,7 @@ struct TypingIndicator: View {
 
 struct ChatBubble: View {
     @Binding var messages: [Message]
+    @Binding var isTyping: Bool
     @ObservedObject var message: Message
     var isConsecutive: Bool
     var showCursor: Bool
@@ -188,6 +189,7 @@ struct ChatBubble: View {
                     ).trimmingCharacters(in: .whitespacesAndNewlines)
 
                     Text(displayText + (showCursor ? "|" : ""))
+                        .accessibilityIdentifier("chat.response")
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(.white.opacity(0.92))
                         .lineSpacing(7)
@@ -246,6 +248,7 @@ struct ChatBubble: View {
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                         }
+                        .disabled(isTyping)
                     }
                 }
             }
@@ -263,6 +266,9 @@ struct ChatBubble: View {
     }
 
     private func handleActionTap(action: Action) {
+        guard !isTyping else { return }
+        isTyping = true
+
         let selectedPrompt: String
         let buttonTitle = action.title
 
@@ -301,6 +307,7 @@ struct ChatBubble: View {
 
         let responseMessage = Message(id: responseId, text: "", revealedText: "", isUser: false)
         messages.append(responseMessage)
+        var requestFailed = false
 
         ClaudeAPI.shared.sendStreamedQuery(
             selectedPrompt,
@@ -312,15 +319,25 @@ struct ChatBubble: View {
                     }
                 }
             },
+            onError: { errorMessage in
+                requestFailed = true
+                if let index = messages.firstIndex(where: { $0.id == responseId }) {
+                    messages[index].text = errorMessage
+                    messages[index].revealedText = errorMessage
+                }
+            },
             onComplete: {
                 DispatchQueue.main.async {
+                    isTyping = false
                     if let index = messages.firstIndex(where: { $0.id == responseId }) {
-                        messages[index].actions = [
-                            Action(title: "Analogy", action: { }),
-                            Action(title: "Simplify", action: { }),
-                            Action(title: "Expand", action: { }),
-                            Action(title: "Dig Deeper", action: { })
-                        ]
+                        if !requestFailed {
+                            messages[index].actions = [
+                                Action(title: "Analogy", action: { }),
+                                Action(title: "Simplify", action: { }),
+                                Action(title: "Expand", action: { }),
+                                Action(title: "Dig Deeper", action: { })
+                            ]
+                        }
                         messages[index].isResponseEnd = true
                     }
                 }
