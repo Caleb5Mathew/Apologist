@@ -69,58 +69,54 @@ struct HomeScreenView: View {
                 } else {
                     // Input Fields
                     VStack(spacing: 16) {
-                        // Feedback Field
                         ZStack(alignment: .topLeading) {
                             if feedback.isEmpty {
                                 Text("Your feedback...")
-                                    .foregroundColor(Color(red: 0.682, green: 0.714, blue: 0.749)) // Light gray (#AEB6BF)
-                                    .padding(.horizontal, 8)
+                                    .foregroundColor(.white.opacity(0.4))
+                                    .padding(.horizontal, 12)
                                     .padding(.top, 12)
                             }
                             TextEditor(text: $feedback)
-                                .onChange(of: feedback) { newValue in
-                                    print("DEBUG: Feedback updated to '\(newValue)'")
-                                }
                                 .scrollContentBackground(.hidden)
                                 .padding(8)
-                                .background(Color.clear)
+                                .background(Color(hex: "#162B3E"))
                                 .foregroundColor(.white)
                                 .font(.system(size: 16))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color(red: 0.682, green: 0.714, blue: 0.749), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
+                                .cornerRadius(14)
                                 .frame(height: 150)
-
                         }
                         .padding(.horizontal, 20)
-                        .onAppear {
-                            print("DEBUG: Feedback input field displayed")
-                        }
                     }
 
                     // Submit Button
                     Button(action: {
-                        print("DEBUG: Submit button clicked")
-//                        sendFeedbackToFirebase()
                         withAnimation {
                             isSubmitted = true
                             feedback = ""
-                            print("DEBUG: Feedback state reset after submission")
                         }
                     }) {
-                        Text("Submit")
-                            .font(.headline.bold())
-                            .foregroundColor(Color(red: 0.043, green: 0.118, blue: 0.188)) // Dark blue text (#0B1E30)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.white) // White button
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color(red: 0.682, green: 0.714, blue: 0.749), lineWidth: 1) // Subtle border
+                        HStack {
+                            Text("Submit")
+                                .font(.headline.bold())
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 14, weight: .bold))
+                        }
+                        .foregroundColor(Color(hex: "#0B1E30"))
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(hex: "#F8C471"), Color(hex: "#E8B84A")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                            .padding(.horizontal, 20)
+                        )
+                        .cornerRadius(14)
+                        .padding(.horizontal, 20)
                     }
                     .padding(.top, 10)
                 }

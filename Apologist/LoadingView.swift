@@ -73,7 +73,7 @@ struct LoadingView: View {
 
     private func startLoadingSequence() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            Superwall.shared.register(event: "campaign_trigger")
+            Superwall.shared.register(placement: "campaign_trigger")
             isLoaded = true
             navigateToMainApp = true
         }

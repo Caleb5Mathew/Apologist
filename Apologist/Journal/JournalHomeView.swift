@@ -42,102 +42,81 @@ struct JournalHomeView: View {
                     .padding(.horizontal)
 
                 // MARK: - Navigation Buttons with Explanations
-                VStack(spacing: 24) { // Increased spacing between buttons
-                    VStack(spacing: 8) { // Button and explanation spacing
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 6) {
                         NavigationLink(destination: FreewriteView(), tag: "Freewrite", selection: $selectedMode) {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 2)
-                                .background(Color.clear)
-                                .frame(height: 75 * 0.75) // Scaled to 3/4 height
-                                .overlay(
-                                    Text("Freewrite")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .multilineTextAlignment(.center)
-                                )
-                                .padding(.horizontal, 30) // Added padding to prevent hugging edges
-                                .onTapGesture {
-                                    selectedMode = "Freewrite"
-                                }
+                            JournalCardButton(
+                                icon: "pencil.line",
+                                title: "Freewrite"
+                            )
                         }
+                        .onTapGesture { selectedMode = "Freewrite" }
 
                         Text("Write your thoughts freely, with no structure or prompts.")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal, 4)
                     }
 
-                    VStack(spacing: 8) { // Button and explanation spacing
+                    VStack(alignment: .leading, spacing: 6) {
                         NavigationLink(destination: GuidedJournalingView(), tag: "Guided", selection: $selectedMode) {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 2)
-                                .background(Color.clear)
-                                .frame(height: 75 * 0.75) // Scaled to 3/4 height
-                                .overlay(
-                                    Text("Guided Journaling")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .multilineTextAlignment(.center)
-                                )
-                                .padding(.horizontal, 30) // Added padding to prevent hugging edges
-                                .onTapGesture {
-                                    selectedMode = "Guided"
-                                }
+                            JournalCardButton(
+                                icon: "list.bullet.rectangle",
+                                title: "Guided Journaling"
+                            )
                         }
+                        .onTapGesture { selectedMode = "Guided" }
 
                         Text("Answer specific prompts to reflect on your day or thoughts.")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal, 4)
                     }
 
-                    VStack(spacing: 8) { // Button and explanation spacing
+                    VStack(alignment: .leading, spacing: 6) {
                         NavigationLink(destination: JournalingHistoryView(), tag: "History", selection: $selectedMode) {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 2)
-                                .background(Color.clear)
-                                .frame(height: 60 * 0.75) // Scaled to 3/4 height
-                                .overlay(
-                                    Text("Journaling History")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .multilineTextAlignment(.center)
-                                )
-                                .padding(.horizontal, 30) // Added padding to prevent hugging edges
-                                .onTapGesture {
-                                    selectedMode = "History"
-                                }
+                            JournalCardButton(
+                                icon: "clock.arrow.circlepath",
+                                title: "Journaling History"
+                            )
                         }
+                        .onTapGesture { selectedMode = "History" }
 
                         Text("Review your past journal entries and reflect on your journey.")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal, 4)
                     }
-                }
 
-                // Spacer between navigation buttons and new button
-                Spacer().frame(height: 24)
+                    Spacer().frame(height: 16)
 
-                // Grayed-out Button
-                VStack(spacing: 8) {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.gray.opacity(0.5)) // Grayed out button
-                        .frame(height: 60)
-                        .overlay(
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 18))
+                                .foregroundColor(Color(hex: "#F8C471").opacity(0.5))
                             Text("Advice & Analyze")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.5))
+                            Spacer()
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.2))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .background(Color(hex: "#132D42").opacity(0.6))
+                        .cornerRadius(14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 1)
                         )
-                        .padding(.horizontal, 30)
 
-                    Text("Coming soon!")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
+                        Text("Coming soon!")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal, 4)
+                    }
                 }
 
                 Spacer() // Push everything up
@@ -158,5 +137,33 @@ struct JournalHomeView: View {
         journaledDates = manager.entries.map { entry in
             Calendar.current.dateComponents([.year, .month, .day], from: entry.date ?? Date())
         }
+    }
+}
+
+private struct JournalCardButton: View {
+    let icon: String
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(Color(hex: "#F8C471").opacity(0.9))
+            Text(title)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(.white.opacity(0.9))
+            Spacer()
+            Image(systemName: "arrow.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white.opacity(0.3))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color(hex: "#132D42"))
+        .cornerRadius(14)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
 }

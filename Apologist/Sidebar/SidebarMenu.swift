@@ -59,7 +59,7 @@ struct SidebarMenu: View {
 
                             Spacer()
 
-                            // New "X" Button (Right Side)
+                            // Close Button (Right Side)
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     showSidebar = false
@@ -67,8 +67,8 @@ struct SidebarMenu: View {
                             }) {
                                 Image(systemName: "xmark")
                                     .font(.title2)
-                                    .foregroundColor(.red) // Red color for the "X"
-                                    .padding(.trailing, 38) // Adjust padding to match the left button
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .padding(.trailing, 38)
                                     .padding(.top, 24)
                             }
                         }
@@ -90,7 +90,7 @@ struct SidebarMenu: View {
                                 }) {
                                     HStack(spacing: 15) {
                                         Image(systemName: option.iconName)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(Color(hex: "#F8C471"))
                                             .frame(width: 24, height: 24)
                                         Text(option.rawValue)
                                             .font(.system(size: 20, weight: .semibold))
@@ -100,7 +100,7 @@ struct SidebarMenu: View {
                                     .padding(.horizontal, 20)
                                 }
                                 Divider()
-                                    .background(Color.gray.opacity(0.5))
+                                    .background(Color.white.opacity(0.06))
                             }
                         }
                         .padding(.horizontal, 10)

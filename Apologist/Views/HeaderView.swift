@@ -50,24 +50,20 @@ struct HeaderView: View {
                 .padding(.trailing, 10)
             }
             .padding([.top, .leading, .trailing])
-            .padding(.bottom, 10) // Add more spacing to push it down slightly
+            .padding(.bottom, 8)
 
             Divider()
-                .background(Color(hex: "#2F726A")) // Misty Teal for divider
-            // Row 2: Weekly Progress, Sort Menu, and Plus Button
+                .background(Color.white.opacity(0.08))
             HStack {
                 Spacer()
-
-                // Weekly Progress Text
                 Text("WEEKLY PROGRESS")
-                    .font(.system(size: 14, weight: .bold))
-                    .kerning(1.5)
-                    .foregroundColor(Color(hex: "#F8C471")) // Star Glow Yellow
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .kerning(1.2)
+                    .foregroundColor(Color(hex: "#F8C471"))
                     .multilineTextAlignment(.center)
-
                 Spacer()
             }
-            .padding([.leading, .trailing], 8) // Adjust spacing
+            .padding([.leading, .trailing], 8)
             .padding(.bottom, 8)
         }
         .background(
@@ -82,7 +78,7 @@ struct HeaderView: View {
 
     func getDayInfo(daysAgo: Int) -> (dayNumber: String, dayName: String) {
         let today = Date.now
-        let todayMinusDaysAgo = Calendar.current.date(byAdding: .day, value: -daysAgo, to: today)!
+        let todayMinusDaysAgo = Calendar.current.date(byAdding: .day, value: -daysAgo, to: today) ?? today
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEEEE"

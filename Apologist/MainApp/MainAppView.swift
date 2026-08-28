@@ -142,11 +142,8 @@ struct MainAppView: View {
                 ContentView() // Default to Habits
             }
         }
-        .transition(.asymmetric(
-            insertion: .moveWipe(direction: selectedTab < previousTab ? .trailing : .leading),
-            removal: .opacity
-        ))
-        .animation(.easeInOut(duration: 0.3), value: selectedTab)
+        // Removed custom transition and animation to prevent crash during rapid tab switching
+        // The complex transition combined with stateful views was likely causing memory issues
         .onChange(of: selectedTab) { newValue in
             print("DEBUG: Tab changed from \(previousTab) to \(newValue)")
             print("DEBUG: Transition direction: \(selectedTab < previousTab ? "Trailing (Right to Left)" : "Leading (Left to Right)")")

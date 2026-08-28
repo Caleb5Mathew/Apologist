@@ -105,22 +105,33 @@ struct HabitListView: View {
         var onNavigate: () -> Void
 
         var body: some View {
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white, lineWidth: 2) // White border
-                .background(Color.clear) // Transparent background
-                .frame(height: 75) // Match HabitRowView height
-                .overlay(
+            Button(action: {
+                onNavigate()
+                isVisible = false
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(Color(hex: "#F8C471").opacity(0.9))
                     Text("Create your first habit")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                )
-                .onTapGesture {
-                    onNavigate() // Trigger navigation
-                    isVisible = false // Hide suggested habit
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.3))
                 }
-                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+                .background(Color(hex: "#132D42"))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity)
         }
     }
 

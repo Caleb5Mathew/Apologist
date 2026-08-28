@@ -53,21 +53,21 @@ struct EditHabitView: View {
                 .padding(.top, 20) // Reduce padding between the title and content
                 .padding(.horizontal)
             }
-            .navigationTitle(habit == nil ? "Add New Habit" : "Edit a Habit") // Use navigationTitle
-            .navigationBarTitleDisplayMode(.inline) // Compact navigation bar height
-            
-            // Toolbar background and styling
-            .toolbarBackground(Color(hex: "#1F5F4E"), for: .navigationBar) // Emerald Green background
+            .navigationTitle(habit == nil ? "Add New Habit" : "Edit a Habit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color(hex: "#1F5F4E"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarColorScheme(.light, for: .navigationBar) // Force light color scheme
-            
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(habit == nil ? "Add New Habit" : "Edit a Habit")
-                        .font(.headline)
-                        .foregroundColor(.white) // Title to white
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        save()
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .fontWeight(.semibold)
+                    .accessibilityIdentifier("saveHabit")
                 }
-                saveToolbarItem
                 if habit != nil {
                     deleteToolbarItem
                 }
@@ -163,17 +163,6 @@ struct EditHabitView: View {
                 }
             }
             .pickerStyle(MenuPickerStyle())
-        }
-    }
-
-    var saveToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button("Save") {
-                save()
-                dismiss()
-            }
-            .foregroundColor(Color(hex: "#D4DDE1")) // Moonlight Silver for Save button
-            .accessibilityIdentifier("saveHabit")
         }
     }
 

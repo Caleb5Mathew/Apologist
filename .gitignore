@@ -1,2 +1,6 @@
-Apologist/ClaudeAPI.swift
-Apologist/ClaudeAPI.swift
+.DS_Store
+xcuserdata/
+*.xcuserstate
+
+# Local secrets
+Secrets.xcconfig

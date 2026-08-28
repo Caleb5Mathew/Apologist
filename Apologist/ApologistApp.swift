@@ -26,19 +26,18 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
         
         // Configure Superwall with your API key
-        Superwall.configure(apiKey: "api-key")
+        Superwall.configure(apiKey: "pk_e7000e4aad725f2d7a6eae7dc7633538b4c05d32c96afde3")
         
         return true
     }
 }
-//pk_e7000e4aad725f2d7a6eae7dc7633538b4c05d32c96afde3
 
 @main
 struct ApologistApp: App {
     // Use custom AppDelegate to control orientation
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var dataController = DataController() // ✅ Initialize DataController as @StateObject
-    @State private var showOnboarding = true // Manage onboarding state
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false // ✅ Check if onboarding has been completed
     @State private var hasPromptedReview = false // Track if the review prompt has been shown
 
     // Initializer for app-wide setup
@@ -52,8 +51,16 @@ struct ApologistApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if showOnboarding {
-                OnboardingView(isLoaded: $showOnboarding)
+            if !hasCompletedOnboarding {
+                OnboardingView(isLoaded: Binding(
+                    get: { !hasCompletedOnboarding },
+                    set: { newValue in
+                        // When onboarding completes, set hasCompletedOnboarding to true
+                        if newValue {
+                            hasCompletedOnboarding = true
+                        }
+                    }
+                ))
                     .environment(\.managedObjectContext, dataController.container.viewContext) // ✅ Inject Core Data context
                     .environmentObject(dataController) // ✅ Inject DataController into OnboardingView
             } else {
@@ -61,14 +68,16 @@ struct ApologistApp: App {
                     .environment(\.managedObjectContext, dataController.container.viewContext) // ✅ Inject Core Data context
                     .environmentObject(dataController) // ✅ Inject DataController into main content
                     .onAppear {
+                        #if !DEBUG
                         print("[DEBUG] Checking for app updates...")
-                        AppVersionManager.checkForUpdate(bundleId: "DeepDev.Apologist") { isUpdateAvailable, _ in
+                        AppVersionManager.checkForUpdate(bundleId: "DeepDev.Apologist") { isUpdateAvailable in
                             DispatchQueue.main.async {
                                 if isUpdateAvailable {
                                     NotificationCenter.default.post(name: .appUpdateAvailable, object: nil)
                                 }
                             }
                         }
+                        #endif
                     }
             }
         }

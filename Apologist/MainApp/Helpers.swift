@@ -27,15 +27,13 @@ struct Action: Identifiable, Equatable {
     }
 }
 
-
-
 class Message: ObservableObject, Identifiable, Equatable {
     let id: UUID
     @Published var text: String
     @Published var revealedText: String
     let isUser: Bool
     @Published var actions: [Action]?
-    @Published var isResponseEnd: Bool = false // Add this to indicate the end of a response
+    @Published var isResponseEnd: Bool = false
 
     init(id: UUID = UUID(), text: String, revealedText: String, isUser: Bool, actions: [Action]? = nil, isResponseEnd: Bool = false) {
         self.id = id
@@ -43,7 +41,7 @@ class Message: ObservableObject, Identifiable, Equatable {
         self.revealedText = revealedText
         self.isUser = isUser
         self.actions = actions
-        self.isResponseEnd = isResponseEnd // Initialize with default value
+        self.isResponseEnd = isResponseEnd
     }
 
     static func == (lhs: Message, rhs: Message) -> Bool {
@@ -51,17 +49,13 @@ class Message: ObservableObject, Identifiable, Equatable {
                lhs.text == rhs.text &&
                lhs.revealedText == rhs.revealedText &&
                lhs.isUser == rhs.isUser &&
-               lhs.isResponseEnd == rhs.isResponseEnd // Include isResponseEnd here
+               lhs.isResponseEnd == rhs.isResponseEnd
     }
 }
-
-
 
 class MessagesViewModel: ObservableObject {
     @Published var messages: [Message] = []
 }
-
-
 
 // MARK: - Hex Color Extension
 extension Color {
@@ -82,260 +76,299 @@ extension Color {
 }
 
 // MARK: - Typing Indicator
+
 struct TypingIndicator: View {
-    @State private var dotCount = 1
+    @State private var phase: Int = 0
+    var showIcon: Bool = true
 
     var body: some View {
-        Text(String(repeating: ".", count: dotCount))
-            .font(.system(size: 20, weight: .bold, design: .default))
-            .foregroundColor(Color(hex: "#F8C471"))
-            .onAppear {
-                Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { timer in
-                    dotCount = (dotCount % 3) + 1 // Cycle between 1, 2, and 3 dots
-                }
+        HStack(spacing: 5) {
+            if showIcon {
+                Image(systemName: "cross.fill")
+                    .font(.system(size: 11))
+                    .foregroundColor(Color(hex: "#F8C471").opacity(0.6))
             }
-    }
-}
-
-
-
-struct ChatBubble: View {
-    @Binding var messages: [Message] // Add messages as a binding
-    @ObservedObject var message: Message // Updated to ObservableObject
-    var isConsecutive: Bool
-    var showCursor: Bool // Controls whether the `|` is shown
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: isConsecutive ? 4 : 16) {
-            if message.isUser {
-                // User Message
-                HStack {
-                    Spacer()
-                    Text(message.revealedText)
-                        .padding()
-                        .background(Color(hex: "#1F5F4E"))
-                        .foregroundColor(Color(hex: "#FFFFFF"))
-                        .cornerRadius(20)
-                        .frame(maxWidth: 250, alignment: .trailing)
-                        .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = message.revealedText
-                                print("DEBUG: User copied message: \(message.revealedText)")
-                            }) {
-                                Text("Copy")
-                                Image(systemName: "doc.on.doc")
-                            }
-                        }
-                }
-                .padding(.horizontal)
-                .onAppear {
-                    print("DEBUG: Rendering user message: \(message.revealedText)")
-                }
-            } else {
-                // Assistant Message
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        // Check if the analogy marker is present
-                        if message.revealedText.contains("--- Analogy Starts Below ---") {
-                            // Clean the revealedText to remove the marker
-                            let cleanedText = message.revealedText.replacingOccurrences(of: "--- Analogy Starts Below ---", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-                            
-                            // Display the cleaned text
-                            Text(cleanedText)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundColor(Color(hex: "#FFFFFF")) // White color for clarity
-                                .lineSpacing(6)
-                                .animation(nil, value: message.revealedText)
-                                .contextMenu {
-                                    Button(action: {
-                                        UIPasteboard.general.string = cleanedText
-                                        print("DEBUG: Cleaned analogy text copied.")
-                                    }) {
-                                        Text("Copy")
-                                        Image(systemName: "doc.on.doc")
-                                    }
-                                }
-                        } else {
-                            // Render entire message normally if no analogy marker exists
-                            Text(message.revealedText + (showCursor ? "|" : ""))
-                                .font(.system(size: 16))
-                                .foregroundColor(Color(hex: "#FFFFFF"))
-                                .lineSpacing(6)
-                                .animation(nil, value: message.revealedText)
-                                .contextMenu {
-                                    Button(action: {
-                                        UIPasteboard.general.string = message.revealedText
-                                        print("DEBUG: Assistant message copied: \(message.revealedText)")
-                                    }) {
-                                        Text("Copy")
-                                        Image(systemName: "doc.on.doc")
-                                    }
-                                }
-                                .onAppear {
-                                    print("DEBUG: Rendering assistant message: \(message.revealedText)")
-                                }
-                        }
-
-                        // Action buttons (unchanged)
-                        // Action buttons (unchanged)
-                        if let actions = message.actions {
-                            Spacer()
-                                .frame(height: 24)
-
-                            HStack {
-                                Spacer()
-                                Text("Dig Deeper")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .kerning(1.5)
-                                    .foregroundColor(Color.white)
-                                    .multilineTextAlignment(.center)
-                                Spacer()
-                            }
-                            .padding(.bottom, 16)
-
-                            HStack(spacing: 16) {
-                                ForEach(actions.filter { $0.title != "Dig Deeper" }) { action in
-                                    Button(action: {
-                                        // Determine which query to send based on button title
-                                        let selectedPrompt: String
-                                        let buttonTitle = action.title
-                                        if buttonTitle == "Simplify" {
-                                            selectedPrompt = ClaudeAPI.shared.simplifyPrompt // Use Simplify prompt
-                                        } else if buttonTitle == "Expand" {
-                                            selectedPrompt = ClaudeAPI.shared.expandPrompt // Use Expand prompt
-                                        } else if buttonTitle == "Analogy" {
-                                            // For "Analogy", include the memory context, last user question, and last assistant response
-                                            let memoryContext = ClaudeAPI.shared.memory.suffix(10).joined(separator: "\n") // Include broader memory context
-                                            let lastUserQuestion = messages.last(where: { $0.isUser })?.text ?? "No user question found."
-                                            let lastAssistantResponse = messages.last(where: { !$0.isUser })?.text ?? "No assistant response found."
-
-                                            selectedPrompt = """
-                                            \(ClaudeAPI.shared.analogyPrompt)
-
-                                            Based on the following previous messages:
-                                            \(memoryContext)
-
-                                            User's Last Question: \(lastUserQuestion)
-                                            Assistant's Last Response: \(lastAssistantResponse)
-                                            """
-                                        }
-
- else {
-                                            selectedPrompt = ClaudeAPI.shared.analogyPrompt // Default to analogy if no match
-                                        }
-
-                                        let responseId = UUID() // Generate a new ID for the response
-
-                                        // Clear actions for all other assistant messages before appending a new one
-                                        messages.indices.forEach { index in
-                                            if !messages[index].isUser {
-                                                messages[index].actions = nil
-                                                messages[index].isResponseEnd = false
-                                            }
-                                        }
-
-                                        // Append a "user" message for the button request
-                                        let userMessage = Message(
-                                            id: UUID(),
-                                            text: buttonTitle,
-                                            revealedText: buttonTitle,
-                                            isUser: true
-                                        )
-                                        messages.append(userMessage)
-
-                                        // Append a placeholder for the button response
-                                        let responseMessage = Message(
-                                            id: responseId,
-                                            text: "",
-                                            revealedText: "",
-                                            isUser: false
-                                        )
-                                        messages.append(responseMessage)
-
-                                        // Send the selected query using `sendStreamedQuery`
-                                        ClaudeAPI.shared.sendStreamedQuery(
-                                            selectedPrompt,
-                                            onReceive: { chunk in
-                                                // Only append chunks to the response message
-                                                if let index = messages.firstIndex(where: { $0.id == responseId }) {
-                                                    DispatchQueue.main.async {
-                                                        messages[index].text += chunk
-                                                        messages[index].revealedText += chunk
-                                                        print("DEBUG: \(buttonTitle) response chunk received: \(chunk)")
-                                                    }
-                                                }
-                                            },
-                                            onComplete: {
-                                                DispatchQueue.main.async {
-                                                    print("DEBUG: \(buttonTitle) response completed.")
-                                                    if let index = messages.firstIndex(where: { $0.id == responseId }) {
-                                                        // Reveal the response gradually and toggle the typing indicator
-                                                        revealWordsGradually(for: messages[index], isTyping: .constant(false), showCursor: .constant(false)) {
-                                                            // Assign follow-up actions after the response is fully revealed
-                                                            messages[index].actions = [
-                                                                Action(title: "Analogy", action: { print("DEBUG: Tapped Analogy for message ID: \(responseId)") }),
-                                                                Action(title: "Simplify", action: { print("DEBUG: Tapped Simplify for message ID: \(responseId)") }),
-                                                                Action(title: "Expand", action: { print("DEBUG: Tapped Expand for message ID: \(responseId)") }),
-                                                                Action(title: "Dig Deeper", action: { print("DEBUG: Tapped Dig Deeper for message ID: \(responseId)") })
-                                                            ]
-                                                            messages[index].isResponseEnd = true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    })
-
- {
-                                        Text(action.title)
-                                            .font(.system(size: 14, weight: .bold))
-                                            .kerning(1.5)
-                                            .foregroundColor(Color.white)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .stroke(Color.white, lineWidth: 2)
-                                            )
-                                    }
-
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.bottom, 16)
-                        }
-
-                    }
-                    .padding(.horizontal)
-                    Spacer()
+            HStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { i in
+                    Circle()
+                        .fill(Color.white.opacity(dotOpacity(for: i)))
+                        .frame(width: 6, height: 6)
                 }
             }
         }
+        .padding(.horizontal, showIcon ? 14 : 10)
+        .padding(.vertical, 10)
+        .background(Color(hex: "#132D42"))
+        .cornerRadius(16)
+        .onAppear {
+            Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { _ in
+                phase = (phase + 1) % 3
+            }
+        }
+    }
+
+    private func dotOpacity(for index: Int) -> Double {
+        index == phase ? 0.9 : 0.3
     }
 }
 
+// MARK: - Chat Bubble
 
+struct ChatBubble: View {
+    @Binding var messages: [Message]
+    @ObservedObject var message: Message
+    var isConsecutive: Bool
+    var showCursor: Bool
+    var showTypingDots: Bool = false
 
+    private let accentGold = Color(hex: "#F8C471")
+    private let userBubbleGradient = LinearGradient(
+        colors: [Color(hex: "#1B6B52"), Color(hex: "#155A44")],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    private let assistantBg = Color(hex: "#132D42")
 
+    var body: some View {
+        VStack(alignment: .leading, spacing: isConsecutive ? 2 : 14) {
+            if message.isUser {
+                userBubble
+            } else {
+                assistantBubble
+            }
+        }
+    }
 
+    // MARK: User Bubble
 
+    private var userBubble: some View {
+        HStack {
+            Spacer()
+            Text(message.revealedText)
+                .font(.system(size: 15))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 11)
+                .background(userBubbleGradient)
+                .clipShape(ChatBubbleShape(isUser: true))
+                .contextMenu {
+                    Button(action: {
+                        UIPasteboard.general.string = message.revealedText
+                    }) {
+                        Label("Copy", systemImage: "doc.on.doc")
+                    }
+                }
+        }
+        .padding(.leading, 52)
+    }
 
+    // MARK: Assistant Bubble
 
+    private var assistantBubble: some View {
+        HStack(alignment: .top, spacing: 10) {
+            if !isConsecutive {
+                Image(systemName: "cross.fill")
+                    .font(.system(size: 11))
+                    .foregroundColor(accentGold.opacity(0.7))
+                    .frame(width: 28, height: 28)
+                    .background(Color.white.opacity(0.06))
+                    .clipShape(Circle())
+            } else {
+                Spacer().frame(width: 28)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                if showTypingDots {
+                    TypingIndicator(showIcon: false)
+                } else {
+                    let rawContent = message.revealedText.isEmpty ? message.text : message.revealedText
+                    let displayText = rawContent.replacingOccurrences(
+                        of: "--- Analogy Starts Below ---",
+                        with: ""
+                    ).trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    Text(displayText + (showCursor ? "|" : ""))
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(.white.opacity(0.92))
+                        .lineSpacing(7)
+                        .animation(nil, value: message.revealedText)
+                        .contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = displayText
+                            }) {
+                                Label("Copy", systemImage: "doc.on.doc")
+                            }
+                        }
+                }
+
+                if let actions = message.actions {
+                    actionButtonsSection(actions: actions)
+                }
+            }
+            .padding(.trailing, 20)
+        }
+    }
+
+    // MARK: Action Buttons
+
+    @ViewBuilder
+    private func actionButtonsSection(actions: [Action]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Rectangle()
+                .fill(Color.white.opacity(0.06))
+                .frame(height: 1)
+                .padding(.vertical, 6)
+
+            Text("DIG DEEPER")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .kerning(1.8)
+                .foregroundColor(.white.opacity(0.35))
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(actions.filter { $0.title != "Dig Deeper" }) { action in
+                        Button(action: {
+                            handleActionTap(action: action)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: iconForAction(action.title))
+                                    .font(.system(size: 11))
+                                Text(action.title)
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundColor(.white.opacity(0.85))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.white.opacity(0.08))
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private func iconForAction(_ title: String) -> String {
+        switch title {
+        case "Analogy": return "lightbulb"
+        case "Simplify": return "text.badge.minus"
+        case "Expand": return "text.badge.plus"
+        default: return "arrow.right"
+        }
+    }
+
+    private func handleActionTap(action: Action) {
+        let selectedPrompt: String
+        let buttonTitle = action.title
+
+        if buttonTitle == "Simplify" {
+            selectedPrompt = ClaudeAPI.shared.simplifyPrompt
+        } else if buttonTitle == "Expand" {
+            selectedPrompt = ClaudeAPI.shared.expandPrompt
+        } else if buttonTitle == "Analogy" {
+            let memoryContext = ClaudeAPI.shared.memory.suffix(10).joined(separator: "\n")
+            let lastUserQuestion = messages.last(where: { $0.isUser })?.text ?? "No user question found."
+            let lastAssistantResponse = messages.last(where: { !$0.isUser })?.text ?? "No assistant response found."
+            selectedPrompt = """
+            \(ClaudeAPI.shared.analogyPrompt)
+
+            Based on the following previous messages:
+            \(memoryContext)
+
+            User's Last Question: \(lastUserQuestion)
+            Assistant's Last Response: \(lastAssistantResponse)
+            """
+        } else {
+            selectedPrompt = ClaudeAPI.shared.analogyPrompt
+        }
+
+        let responseId = UUID()
+
+        messages.indices.forEach { index in
+            if !messages[index].isUser {
+                messages[index].actions = nil
+                messages[index].isResponseEnd = false
+            }
+        }
+
+        let userMessage = Message(id: UUID(), text: buttonTitle, revealedText: buttonTitle, isUser: true)
+        messages.append(userMessage)
+
+        let responseMessage = Message(id: responseId, text: "", revealedText: "", isUser: false)
+        messages.append(responseMessage)
+
+        ClaudeAPI.shared.sendStreamedQuery(
+            selectedPrompt,
+            onReceive: { chunk in
+                if let index = messages.firstIndex(where: { $0.id == responseId }) {
+                    DispatchQueue.main.async {
+                        messages[index].text += chunk
+                        messages[index].revealedText += chunk
+                    }
+                }
+            },
+            onComplete: {
+                DispatchQueue.main.async {
+                    if let index = messages.firstIndex(where: { $0.id == responseId }) {
+                        messages[index].actions = [
+                            Action(title: "Analogy", action: { }),
+                            Action(title: "Simplify", action: { }),
+                            Action(title: "Expand", action: { }),
+                            Action(title: "Dig Deeper", action: { })
+                        ]
+                        messages[index].isResponseEnd = true
+                    }
+                }
+            }
+        )
+    }
+}
+
+// MARK: - Chat Bubble Shape
+
+struct ChatBubbleShape: Shape {
+    let isUser: Bool
+
+    func path(in rect: CGRect) -> Path {
+        let radius: CGFloat = 18
+        let tailRadius: CGFloat = 6
+        var path = Path()
+
+        if isUser {
+            path.addRoundedRect(
+                in: CGRect(x: rect.minX, y: rect.minY, width: rect.width - tailRadius / 2, height: rect.height),
+                cornerSize: CGSize(width: radius, height: radius)
+            )
+        } else {
+            path.addRoundedRect(
+                in: CGRect(x: tailRadius / 2, y: rect.minY, width: rect.width - tailRadius / 2, height: rect.height),
+                cornerSize: CGSize(width: radius, height: radius)
+            )
+        }
+
+        return path
+    }
+}
 
 // MARK: - Word-by-Word Text Reveal
+
 struct WordByWordText: View {
     @State private var revealedText: String = ""
     let text: String
     let interval: Double = 0.05
 
     var body: some View {
-        ZStack { // Prevent unnecessary flashing
-            Text(text) // Full text (hidden, stabilizes layout)
+        ZStack {
+            Text(text)
                 .hidden()
-            
-            Text(revealedText) // Dynamically revealed text
-                .foregroundColor(Color(hex: "#FFFFFF")) // White text
-                .animation(nil, value: revealedText) // Disable animation on updates
+            Text(revealedText)
+                .foregroundColor(Color(hex: "#FFFFFF"))
+                .animation(nil, value: revealedText)
                 .onAppear {
                     revealWords()
                 }
@@ -356,13 +389,11 @@ struct WordByWordText: View {
     }
 }
 
-
 private func revealWordsGradually(for message: Message, isTyping: Binding<Bool>, showCursor: Binding<Bool>, onComplete: @escaping () -> Void) {
     let fullText = message.text
     let words = fullText.split(separator: " ")
     var revealedWords: [String] = []
 
-    // Reset state before starting
     message.revealedText = ""
     isTyping.wrappedValue = true
     showCursor.wrappedValue = false
@@ -379,11 +410,8 @@ private func revealWordsGradually(for message: Message, isTyping: Binding<Bool>,
             timer.invalidate()
             DispatchQueue.main.async {
                 message.revealedText = fullText
-
-                // Completion handler
                 onComplete()
             }
         }
     }
 }
-

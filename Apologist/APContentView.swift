@@ -1,23 +1,11 @@
 import SwiftUI
 
 struct APContentView: View {
-    @State private var isLoaded = false
     @Environment(\.managedObjectContext) private var context // Access Core Data context
     @State private var showUpdateAlert = false // State to control the update alert
 
     var body: some View {
-        Group {
-            if isLoaded {
-                MainAppView()
-            } else {
-                OnboardingView(isLoaded: $isLoaded)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            isLoaded = true
-                        }
-                    }
-            }
-        }
+        MainAppView()
         .onAppear {
             print("[DEBUG] APContentView appeared. Checking notifications and updates.")
 

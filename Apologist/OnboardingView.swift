@@ -113,7 +113,7 @@ struct OnboardingView: View {
     }
     
     private func triggerPaywall() {
-        Superwall.shared.register(event: "campaign_trigger")
+        Superwall.shared.register(placement: "campaign_trigger")
     }
     
     var body: some View {
