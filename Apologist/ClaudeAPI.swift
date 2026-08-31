@@ -1,5 +1,21 @@
-import FirebaseAILogic
+import FirebaseFunctions
 import Foundation
+
+enum ClaudeResponseParser {
+    enum Error: Swift.Error {
+        case invalidResponse
+    }
+
+    static func text(from value: Any) throws -> String {
+        guard let payload = value as? [String: Any],
+              let text = payload["text"] as? String,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw Error.invalidResponse
+        }
+
+        return text
+    }
+}
 
 @MainActor
 final class ClaudeAPI {
@@ -15,20 +31,7 @@ final class ClaudeAPI {
     private var currentRequestID: UUID?
     private let streamFactory: StreamFactory?
     private let requestTimeoutNanoseconds: UInt64
-    private let systemPrompt = """
-    Respond from a Christian Protestant perspective without announcing the denomination. Give a clear,
-    compassionate answer that directly addresses the question. Prioritize relevant Bible verses, and cite
-    Protestant theologians, compatible Catholic thinkers, or books when they genuinely help. Address likely
-    misconceptions and keep the answer under 240 words. Do not begin with a recap or generic preamble.
-    """
-    private var model: GenerativeModel {
-        FirebaseAI.firebaseAI(backend: .vertexAI(location: "global")).generativeModel(
-            modelName: "gemini-3.7-flash",
-            generationConfig: GenerationConfig(maxOutputTokens: 4_096),
-            systemInstruction: ModelContent(role: "system", parts: systemPrompt),
-            requestOptions: RequestOptions(timeout: 45)
-        )
-    }
+    private let maxContextCharacters = 11_000
 
     let defaultPrompt = """
     Respond from a Christian point of view without announcing a denomination. Directly answer the question,
@@ -82,14 +85,7 @@ final class ClaudeAPI {
             return
         }
 
-        let formattedMemory = memory.suffix(8).map { "- \($0)" }.joined(separator: "\n")
-        let context = """
-        Previous conversation:
-        \(formattedMemory.isEmpty ? "None" : formattedMemory)
-
-        Current request:
-        \(query)
-        """
+        let context = makeContext(for: query)
         addToMemory("User: \(query)")
 
         let requestID = UUID()
@@ -108,13 +104,13 @@ final class ClaudeAPI {
                         onReceive(text)
                     }
                 } else {
-                    let requestModel = model
-                    let response = try await requestModel.generateContent(context)
+                    let result = try await Functions.functions(region: "us-central1")
+                        .httpsCallable("answerApologistQuestion")
+                        .call(["context": context])
                     try Task.checkCancellation()
-                    if let text = response.text, !text.isEmpty {
-                        fullResponse += text
-                        onReceive(text)
-                    }
+                    let text = try ClaudeResponseParser.text(from: result.data)
+                    fullResponse += text
+                    onReceive(text)
                 }
 
                 if fullResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -161,5 +157,33 @@ final class ClaudeAPI {
         currentTask = nil
         currentRequestID = nil
         onComplete()
+    }
+
+    private func makeContext(for query: String) -> String {
+        let currentRequest = "Current request:\n\(query)"
+        let fixedCharacters = "Previous conversation:\n\n\n".count + currentRequest.count
+        var remainingCharacters = max(0, maxContextCharacters - fixedCharacters)
+        var retainedMessages: [String] = []
+
+        for message in memory.suffix(8).reversed() {
+            let line = "- \(message)"
+            guard remainingCharacters > 0 else { break }
+
+            if line.count <= remainingCharacters {
+                retainedMessages.append(line)
+                remainingCharacters -= line.count + 1
+            } else {
+                retainedMessages.append(String(line.prefix(remainingCharacters)))
+                remainingCharacters = 0
+            }
+        }
+
+        let formattedMemory = retainedMessages.reversed().joined(separator: "\n")
+        return """
+        Previous conversation:
+        \(formattedMemory.isEmpty ? "None" : formattedMemory)
+
+        \(currentRequest)
+        """
     }
 }

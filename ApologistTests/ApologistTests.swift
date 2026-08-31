@@ -14,6 +14,17 @@ private enum TestStreamError: Swift.Error {
 }
 
 final class ApologistTests: XCTestCase {
+    func testClaudeResponseParserReturnsText() throws {
+        let text = try ClaudeResponseParser.text(from: ["text": "A clear answer."])
+
+        XCTAssertEqual(text, "A clear answer.")
+    }
+
+    func testClaudeResponseParserRejectsMissingOrEmptyText() {
+        XCTAssertThrowsError(try ClaudeResponseParser.text(from: [:]))
+        XCTAssertThrowsError(try ClaudeResponseParser.text(from: ["text": "  "]))
+    }
+
     @MainActor
     func testMemoryKeepsOnlyTenMostRecentMessages() {
         let client = ClaudeAPI()
@@ -260,6 +271,25 @@ final class ApologistTests: XCTestCase {
     }
 
     @MainActor
+    func testFollowUpButtonsUseTheirMatchingPrompts() {
+        let client = ClaudeAPI()
+
+        XCTAssertEqual(FollowUpPrompt.prompt(for: "Simplify", client: client), client.simplifyPrompt)
+        XCTAssertEqual(FollowUpPrompt.prompt(for: "Expand", client: client), client.expandPrompt)
+        XCTAssertEqual(FollowUpPrompt.prompt(for: "Dig Deeper", client: client), client.digDeeperPrompt)
+        XCTAssertEqual(FollowUpPrompt.prompt(for: "Unknown", client: client), client.defaultPrompt)
+    }
+
+    @MainActor
+    func testAnalogyFollowUpUsesMemoryManagedByClaudeClient() {
+        let client = ClaudeAPI()
+
+        let prompt = FollowUpPrompt.prompt(for: "Analogy", client: client)
+
+        XCTAssertEqual(prompt, client.analogyPrompt)
+    }
+
+    @MainActor
     func testClientSupportsConsecutiveQueries() async {
         var receivedPrompts: [String] = []
         let client = ClaudeAPI { prompt in
@@ -285,5 +315,32 @@ final class ApologistTests: XCTestCase {
         XCTAssertEqual(receivedPrompts.count, 2)
         XCTAssertTrue(receivedPrompts[1].contains("First question"))
         XCTAssertTrue(receivedPrompts[1].contains("Second question"))
+    }
+
+    @MainActor
+    func testClientCapsConversationContextForBackendValidation() async {
+        var receivedPrompt = ""
+        let client = ClaudeAPI { prompt in
+            receivedPrompt = prompt
+            return AsyncThrowingStream { continuation in
+                continuation.yield("Answer")
+                continuation.finish()
+            }
+        }
+        for index in 0..<10 {
+            client.addToMemory("Message \(index): \(String(repeating: "x", count: 4_000))")
+        }
+        let completion = expectation(description: "Capped request completes")
+
+        client.sendStreamedQuery(
+            "Current question",
+            onReceive: { _ in },
+            onError: { error in XCTFail("Unexpected error: \(error)") },
+            onComplete: { completion.fulfill() }
+        )
+
+        await fulfillment(of: [completion], timeout: 1)
+        XCTAssertLessThanOrEqual(receivedPrompt.count, 11_000)
+        XCTAssertTrue(receivedPrompt.contains("Current question"))
     }
 }

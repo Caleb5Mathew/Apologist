@@ -73,7 +73,24 @@ struct ChatView: View {
                                         message: message,
                                         isConsecutive: isConsecutive,
                                         showCursor: showCursor && !message.isUser,
-                                        showTypingDots: isTyping && message.id == messages.last?.id && !message.isUser && message.text.isEmpty && message.revealedText.isEmpty
+                                        showTypingDots: isTyping && message.id == messages.last?.id && !message.isUser && message.text.isEmpty && message.revealedText.isEmpty,
+                                        canSendFollowUp: {
+                                            QuestionAccessPolicy.canSend(
+                                                dailyQuestionCount: dailyQuestionCount,
+                                                isSubscribed: isSubscribed
+                                            )
+                                        },
+                                        presentPaywall: { onSubscribed in
+                                            triggerPaywall(onSubscribed: onSubscribed)
+                                        },
+                                        recordSuccessfulFollowUp: {
+                                            if QuestionAccessPolicy.shouldRecordQuestion(
+                                                isSubscribed: isSubscribed,
+                                                requestSucceeded: true
+                                            ) {
+                                                incrementQuestionCount()
+                                            }
+                                        }
                                     )
                                     .transition(.opacity)
                                     .animation(.easeInOut(duration: 0.3), value: message.revealedText)
@@ -291,6 +308,13 @@ struct ChatView: View {
 
     // MARK: - Message Logic
 
+    private var isSubscribed: Bool {
+        switch subscriptionStatus {
+        case .active: return true
+        default: return false
+        }
+    }
+
     private func sendMessage() {
         guard !isTyping else { return }
 
@@ -298,14 +322,6 @@ struct ChatView: View {
             return
         }
 
-        let isSubscribed: Bool = {
-            switch subscriptionStatus {
-            case .active:
-                return true
-            default:
-                return false
-            }
-        }()
         print("DEBUG: Subscription status - \(isSubscribed ? "Active" : "Inactive")")
 
         let currentDate = Calendar.current.startOfDay(for: Date())
@@ -322,14 +338,14 @@ struct ChatView: View {
 
         if !QuestionAccessPolicy.canSend(dailyQuestionCount: dailyQuestionCount, isSubscribed: isSubscribed) {
             print("DEBUG: Daily limit reached! TRIGGERING PAYWALL.")
-            triggerPaywall()
+            triggerPaywall(onSubscribed: executeSendMessage)
             return
         }
 
         executeSendMessage()
     }
 
-    private func triggerPaywall() {
+    private func triggerPaywall(onSubscribed: @escaping () -> Void) {
         guard !isPresentingPaywall else { return }
         isPresentingPaywall = true
 
@@ -352,8 +368,8 @@ struct ChatView: View {
             isPresentingPaywall = false
             switch subscriptionStatus {
             case .active:
-                print("DEBUG: User subscribed after paywall. Allowing message.")
-                executeSendMessage()
+                print("DEBUG: User subscribed after paywall. Continuing request.")
+                onSubscribed()
             default:
                 print("DEBUG: Paywall dismissed without subscription. Message NOT sent.")
             }
@@ -366,13 +382,6 @@ struct ChatView: View {
     }
 
     private func executeSendMessage() {
-        let isSubscribed: Bool = {
-            switch subscriptionStatus {
-            case .active: return true
-            default: return false
-            }
-        }()
-
         messages.indices.forEach { index in
             if !messages[index].isUser {
                 messages[index].isResponseEnd = false
