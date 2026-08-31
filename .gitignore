@@ -4,3 +4,9 @@ xcuserdata/
 
 # Local secrets
 Secrets.xcconfig
+
+# Firebase Functions
+functions/node_modules/
+functions/lib/
+functions/.env*
+firebase-debug.log

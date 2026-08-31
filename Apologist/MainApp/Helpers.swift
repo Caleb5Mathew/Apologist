@@ -57,6 +57,27 @@ class MessagesViewModel: ObservableObject {
     @Published var messages: [Message] = []
 }
 
+@MainActor
+enum FollowUpPrompt {
+    static func prompt(
+        for title: String,
+        client: ClaudeAPI
+    ) -> String {
+        switch title {
+        case "Simplify":
+            return client.simplifyPrompt
+        case "Expand":
+            return client.expandPrompt
+        case "Analogy":
+            return client.analogyPrompt
+        case "Dig Deeper":
+            return client.digDeeperPrompt
+        default:
+            return client.defaultPrompt
+        }
+    }
+}
+
 // MARK: - Hex Color Extension
 extension Color {
     init(hex: String) {
@@ -121,6 +142,9 @@ struct ChatBubble: View {
     var isConsecutive: Bool
     var showCursor: Bool
     var showTypingDots: Bool = false
+    var canSendFollowUp: () -> Bool
+    var presentPaywall: (@escaping () -> Void) -> Void
+    var recordSuccessfulFollowUp: () -> Void
 
     private let accentGold = Color(hex: "#F8C471")
     private let userBubbleGradient = LinearGradient(
@@ -228,7 +252,7 @@ struct ChatBubble: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(actions.filter { $0.title != "Dig Deeper" }) { action in
+                    ForEach(actions) { action in
                         Button(action: {
                             handleActionTap(action: action)
                         }) {
@@ -267,31 +291,16 @@ struct ChatBubble: View {
 
     private func handleActionTap(action: Action) {
         guard !isTyping else { return }
+        guard canSendFollowUp() else {
+            presentPaywall {
+                handleActionTap(action: action)
+            }
+            return
+        }
         isTyping = true
 
-        let selectedPrompt: String
         let buttonTitle = action.title
-
-        if buttonTitle == "Simplify" {
-            selectedPrompt = ClaudeAPI.shared.simplifyPrompt
-        } else if buttonTitle == "Expand" {
-            selectedPrompt = ClaudeAPI.shared.expandPrompt
-        } else if buttonTitle == "Analogy" {
-            let memoryContext = ClaudeAPI.shared.memory.suffix(10).joined(separator: "\n")
-            let lastUserQuestion = messages.last(where: { $0.isUser })?.text ?? "No user question found."
-            let lastAssistantResponse = messages.last(where: { !$0.isUser })?.text ?? "No assistant response found."
-            selectedPrompt = """
-            \(ClaudeAPI.shared.analogyPrompt)
-
-            Based on the following previous messages:
-            \(memoryContext)
-
-            User's Last Question: \(lastUserQuestion)
-            Assistant's Last Response: \(lastAssistantResponse)
-            """
-        } else {
-            selectedPrompt = ClaudeAPI.shared.analogyPrompt
-        }
+        let selectedPrompt = FollowUpPrompt.prompt(for: buttonTitle, client: ClaudeAPI.shared)
 
         let responseId = UUID()
 
@@ -331,6 +340,7 @@ struct ChatBubble: View {
                     isTyping = false
                     if let index = messages.firstIndex(where: { $0.id == responseId }) {
                         if !requestFailed {
+                            recordSuccessfulFollowUp()
                             messages[index].actions = [
                                 Action(title: "Analogy", action: { }),
                                 Action(title: "Simplify", action: { }),
