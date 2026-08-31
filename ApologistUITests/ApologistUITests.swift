@@ -5,7 +5,11 @@ final class ApologistUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testQuestionReceivesRealResponse() throws {
+    func testConsecutiveQuestionsReceiveRealResponses() throws {
+        guard ProcessInfo.processInfo.environment["RUN_LIVE_AI_TESTS"] == "1" else {
+            throw XCTSkip("Set RUN_LIVE_AI_TESTS=1 to run the production AI integration test.")
+        }
+
         let app = XCUIApplication()
         app.launchArguments = [
             "-hasCompletedOnboarding", "YES",
@@ -24,10 +28,22 @@ final class ApologistUITests: XCTestCase {
 
         let response = app.staticTexts.matching(identifier: "chat.response").firstMatch
         let usableAnswer = NSPredicate(
-            format: "label.length > 20 AND NOT label CONTAINS[c] %@",
-            "couldn't"
+            format: "label.length > 20 AND NOT label CONTAINS[c] %@ AND NOT label CONTAINS[c] %@",
+            "couldn't",
+            "took too long"
         )
         expectation(for: usableAnswer, evaluatedWith: response)
+        waitForExpectations(timeout: 60)
+
+        questionField.tap()
+        questionField.typeText("Why is forgiveness important?")
+
+        expectation(for: NSPredicate(format: "isEnabled == YES"), evaluatedWith: sendButton)
+        waitForExpectations(timeout: 30)
+        sendButton.tap()
+
+        let secondResponse = app.staticTexts.matching(identifier: "chat.response").element(boundBy: 1)
+        expectation(for: usableAnswer, evaluatedWith: secondResponse)
         waitForExpectations(timeout: 60)
     }
 }
