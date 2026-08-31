@@ -8,6 +8,26 @@ import SuperwallKit
 import SwiftUI
 import FirebaseFirestore
 
+enum QuestionAccessPolicy {
+    static let freeDailyLimit = 5
+
+    static func canSend(dailyQuestionCount: Int, isSubscribed: Bool) -> Bool {
+        isSubscribed || dailyQuestionCount < freeDailyLimit
+    }
+
+    static func remainingFreeQuestions(dailyQuestionCount: Int) -> Int {
+        max(0, freeDailyLimit - dailyQuestionCount)
+    }
+
+    static func shouldRecordQuestion(isSubscribed: Bool, requestSucceeded: Bool) -> Bool {
+        !isSubscribed && requestSucceeded
+    }
+
+    static func isNewDay(lastAccessDate: Date, now: Date, calendar: Calendar) -> Bool {
+        calendar.startOfDay(for: now) > calendar.startOfDay(for: lastAccessDate)
+    }
+}
+
 struct ChatView: View {
     @Binding var userInput: String
     @Binding var messages: [Message]
@@ -15,12 +35,11 @@ struct ChatView: View {
     @State private var disableAutoscroll: Bool = false
     @State private var userInteracted: Bool = false
     @State private var showCursor: Bool = false
-    @State private var generationTimer: Timer?
     @State private var db = Firestore.firestore()
     @State private var showTooltip = false
-    @State private var revealTimer: DispatchSourceTimer?
     @State private var dailyQuestionCount: Int = 0
     @State private var subscriptionStatus: SubscriptionStatus = .inactive
+    @State private var isPresentingPaywall = false
 
     private let bgColor = Color(hex: "#0B1E30")
     private let accentGold = Color(hex: "#F8C471")
@@ -89,9 +108,10 @@ struct ChatView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             updateSubscriptionStatus()
         }
+        .onReceive(Superwall.shared.$subscriptionStatus) { newStatus in
+            subscriptionStatus = newStatus
+        }
         .onDisappear {
-            generationTimer?.invalidate()
-            generationTimer = nil
             showCursor = false
             if !ClaudeAPI.shared.isRequestInProgress {
                 isTyping = false
@@ -225,7 +245,7 @@ struct ChatView: View {
             let countText: String = {
                 switch subscriptionStatus {
                 case .active: return "∞"
-                default: return "\(max(0, 5 - dailyQuestionCount))"
+                default: return "\(QuestionAccessPolicy.remainingFreeQuestions(dailyQuestionCount: dailyQuestionCount))"
                 }
             }()
 
@@ -247,7 +267,7 @@ struct ChatView: View {
 
             if showTooltip {
                 VStack(alignment: .center, spacing: 2) {
-                    Text("\(max(0, 5 - dailyQuestionCount)) of 5")
+                    Text("\(QuestionAccessPolicy.remainingFreeQuestions(dailyQuestionCount: dailyQuestionCount)) of \(QuestionAccessPolicy.freeDailyLimit)")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.white)
                     Text("free daily questions")
@@ -272,8 +292,6 @@ struct ChatView: View {
     // MARK: - Message Logic
 
     private func sendMessage() {
-        generationTimer?.invalidate()
-
         guard !isTyping else { return }
 
         guard !userInput.trimmingCharacters(in: .whitespaces).isEmpty else {
@@ -293,16 +311,16 @@ struct ChatView: View {
         let currentDate = Calendar.current.startOfDay(for: Date())
         let lastAccessDate = UserDefaults.standard.object(forKey: "lastAccessDate") as? Date ?? Date.distantPast
 
-        if currentDate > Calendar.current.startOfDay(for: lastAccessDate) {
+        if QuestionAccessPolicy.isNewDay(lastAccessDate: lastAccessDate, now: currentDate, calendar: .current) {
             print("DEBUG: New day detected. Resetting daily question count.")
             UserDefaults.standard.set(currentDate, forKey: "lastAccessDate")
             UserDefaults.standard.set(0, forKey: "dailyQuestionCount")
             dailyQuestionCount = 0
         }
 
-        print("DEBUG: Daily question count before increment: \(dailyQuestionCount)/5")
+        print("DEBUG: Daily question count before increment: \(dailyQuestionCount)/\(QuestionAccessPolicy.freeDailyLimit)")
 
-        if !isSubscribed && dailyQuestionCount >= 5 {
+        if !QuestionAccessPolicy.canSend(dailyQuestionCount: dailyQuestionCount, isSubscribed: isSubscribed) {
             print("DEBUG: Daily limit reached! TRIGGERING PAYWALL.")
             triggerPaywall()
             return
@@ -312,18 +330,32 @@ struct ChatView: View {
     }
 
     private func triggerPaywall() {
+        guard !isPresentingPaywall else { return }
+        isPresentingPaywall = true
+
+        let handler = PaywallPresentationHandler()
+        handler.onDismiss { _, _ in
+            isPresentingPaywall = false
+        }
+        handler.onError { error in
+            print("DEBUG: Paywall failed: \(error.localizedDescription)")
+            isPresentingPaywall = false
+        }
+        handler.onSkip { reason in
+            print("DEBUG: Paywall skipped: \(reason)")
+            isPresentingPaywall = false
+        }
+
         print("DEBUG: Attempting to trigger paywall...")
-        Superwall.shared.register(placement: "campaign_trigger") {
-            print("DEBUG: Paywall dismissed.")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                updateSubscriptionStatus()
-                switch self.subscriptionStatus {
-                case .active:
-                    print("DEBUG: User subscribed after paywall. Allowing message.")
-                    self.executeSendMessage()
-                default:
-                    print("DEBUG: Paywall dismissed without subscription. Message NOT sent.")
-                }
+        Superwall.shared.register(placement: "campaign_trigger", handler: handler) {
+            updateSubscriptionStatus()
+            isPresentingPaywall = false
+            switch subscriptionStatus {
+            case .active:
+                print("DEBUG: User subscribed after paywall. Allowing message.")
+                executeSendMessage()
+            default:
+                print("DEBUG: Paywall dismissed without subscription. Message NOT sent.")
             }
         }
     }
@@ -341,8 +373,6 @@ struct ChatView: View {
             }
         }()
 
-        if !isSubscribed { incrementQuestionCount() }
-
         messages.indices.forEach { index in
             if !messages[index].isUser {
                 messages[index].isResponseEnd = false
@@ -356,8 +386,6 @@ struct ChatView: View {
         saveQuestionToFirestore(question: userInput)
         userInput = ""
 
-        generationTimer?.invalidate()
-        generationTimer = nil
         showCursor = false
 
         let responseId = UUID()
@@ -390,17 +418,22 @@ struct ChatView: View {
                 DispatchQueue.main.async {
                     isTyping = false
                     if let index = messages.firstIndex(where: { $0.id == responseId }) {
-                        revealWordsGradually(for: responseId) {
-                            if !requestFailed {
-                                messages[index].actions = [
-                                    Action(title: "Analogy", action: { }),
-                                    Action(title: "Simplify", action: { }),
-                                    Action(title: "Expand", action: { }),
-                                    Action(title: "Dig Deeper", action: { })
-                                ]
-                            }
-                            messages[index].isResponseEnd = true
+                        messages[index].revealedText = messages[index].text
+                        if !requestFailed {
+                            messages[index].actions = [
+                                Action(title: "Analogy", action: { }),
+                                Action(title: "Simplify", action: { }),
+                                Action(title: "Expand", action: { }),
+                                Action(title: "Dig Deeper", action: { })
+                            ]
                         }
+                        if QuestionAccessPolicy.shouldRecordQuestion(
+                            isSubscribed: isSubscribed,
+                            requestSucceeded: !requestFailed
+                        ) {
+                            incrementQuestionCount()
+                        }
+                        messages[index].isResponseEnd = true
                     }
                     messages = messages.map { $0 }
                 }
@@ -412,7 +445,7 @@ struct ChatView: View {
         dailyQuestionCount += 1
         UserDefaults.standard.set(dailyQuestionCount, forKey: "dailyQuestionCount")
         print("DEBUG: Question count incremented to \(dailyQuestionCount)")
-        if dailyQuestionCount >= 5 {
+        if dailyQuestionCount >= QuestionAccessPolicy.freeDailyLimit {
             print("DEBUG: Daily question limit reached! Next message should trigger paywall.")
         }
     }
@@ -420,7 +453,7 @@ struct ChatView: View {
     private func resetDailyQuestionCountIfNeeded() {
         let currentDate = Calendar.current.startOfDay(for: Date())
         let lastAccessDate = UserDefaults.standard.object(forKey: "lastAccessDate") as? Date ?? Date.distantPast
-        if currentDate > Calendar.current.startOfDay(for: lastAccessDate) {
+        if QuestionAccessPolicy.isNewDay(lastAccessDate: lastAccessDate, now: currentDate, calendar: .current) {
             UserDefaults.standard.set(currentDate, forKey: "lastAccessDate")
             UserDefaults.standard.set(0, forKey: "dailyQuestionCount")
             dailyQuestionCount = 0
@@ -467,55 +500,4 @@ struct ChatView: View {
         disableAutoscroll = false
     }
 
-    private func revealWordsGradually(for messageId: UUID, typingSpeed: TimeInterval = 0.013, onComplete: @escaping () -> Void = {}) {
-        generationTimer?.invalidate()
-        guard let index = messages.firstIndex(where: { $0.id == messageId }) else {
-            isTyping = false
-            showCursor = false
-            onComplete()
-            return
-        }
-
-        let fullText = messages[index].text
-        let characters = Array(fullText)
-        var currentIndex = 0
-
-        messages[index].revealedText = ""
-        isTyping = true
-        showCursor = true
-
-        let timer = Timer.scheduledTimer(withTimeInterval: typingSpeed, repeats: true) { timer in
-            DispatchQueue.main.async {
-                guard timer.isValid else { return }
-                guard index < messages.count else {
-                    timer.invalidate()
-                    generationTimer = nil
-                    isTyping = false
-                    showCursor = false
-                    onComplete()
-                    return
-                }
-
-                if currentIndex < characters.count {
-                    if index < messages.count {
-                        messages[index].revealedText.append(characters[currentIndex])
-                    }
-                    currentIndex += 1
-                    if currentIndex == 1 {
-                        showCursor = false
-                        messages = messages.map { $0 }
-                    }
-                } else {
-                    timer.invalidate()
-                    self.generationTimer = nil
-                    isTyping = false
-                    showCursor = false
-                    messages = messages.map { $0 }
-                    onComplete()
-                }
-            }
-        }
-        generationTimer = timer
-        RunLoop.current.add(timer, forMode: .common)
-    }
 }
