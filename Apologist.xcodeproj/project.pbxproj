@@ -77,7 +77,7 @@
 		24BAA5472D0A88C60084D787 /* StatusBarStyleModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5462D0A88C60084D787 /* StatusBarStyleModifier.swift */; };
 		24BAA5492D10C6270084D787 /* StatusBarStyleWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5482D10C6270084D787 /* StatusBarStyleWrapper.swift */; };
 		24BAA5612D113F5F0084D787 /* JournalEntryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BAA5602D113F5F0084D787 /* JournalEntryManager.swift */; };
-		24C7BB612EF49768009750B6 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 24C7BB602EF49768009750B6 /* FirebaseAILogic */; };
+		24C7BB612EF49768009750B6 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 24C7BB7A2EF49769009750B6 /* FirebaseFunctions */; };
 		24C7BB692EF49768009750B6 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 24C7BB682EF49768009750B6 /* FirebaseAppCheck */; };
 		24C7BB712EF49769009750B6 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 24C7BB702EF49769009750B6 /* FirebaseCore */; };
 		24C7BB772EF49769009750B6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 24C7BB762EF49769009750B6 /* FirebaseFirestore */; };
@@ -195,7 +195,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				24C7BB772EF49769009750B6 /* FirebaseFirestore in Frameworks */,
-				24C7BB612EF49768009750B6 /* FirebaseAILogic in Frameworks */,
+				24C7BB612EF49768009750B6 /* FirebaseFunctions in Frameworks */,
 				24C7BB712EF49769009750B6 /* FirebaseCore in Frameworks */,
 				24C7BB692EF49768009750B6 /* FirebaseAppCheck in Frameworks */,
 				248153D02F00C03D00C85023 /* SuperwallKit in Frameworks */,
@@ -481,7 +481,7 @@
 			);
 			name = Apologist;
 			packageProductDependencies = (
-				24C7BB602EF49768009750B6 /* FirebaseAILogic */,
+				24C7BB7A2EF49769009750B6 /* FirebaseFunctions */,
 				24C7BB682EF49768009750B6 /* FirebaseAppCheck */,
 				24C7BB702EF49769009750B6 /* FirebaseCore */,
 				24C7BB762EF49769009750B6 /* FirebaseFirestore */,
@@ -853,7 +853,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Apologist/Apologist.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.17;
+				CURRENT_PROJECT_VERSION = 2.18;
 				DEVELOPMENT_ASSET_PATHS = "\"Apologist/Preview Content\"";
 				DEVELOPMENT_TEAM = SNG8SZK5TY;
 				ENABLE_PREVIEWS = YES;
@@ -867,7 +867,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.17;
+				MARKETING_VERSION = 2.18;
 				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.Apologist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -883,7 +883,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Apologist/Apologist.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.17;
+				CURRENT_PROJECT_VERSION = 2.18;
 				DEVELOPMENT_ASSET_PATHS = "\"Apologist/Preview Content\"";
 				DEVELOPMENT_TEAM = SNG8SZK5TY;
 				ENABLE_PREVIEWS = YES;
@@ -897,7 +897,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.17;
+				MARKETING_VERSION = 2.18;
 				PRODUCT_BUNDLE_IDENTIFIER = DeepDev.Apologist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

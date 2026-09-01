@@ -1,4 +1,4 @@
-import FirebaseAILogic
+import FirebaseFunctions
 import Foundation
 
 @MainActor
@@ -15,20 +15,6 @@ final class ClaudeAPI {
     private var currentRequestID: UUID?
     private let streamFactory: StreamFactory?
     private let requestTimeoutNanoseconds: UInt64
-    private let systemPrompt = """
-    Respond from a Christian Protestant perspective without announcing the denomination. Give a clear,
-    compassionate answer that directly addresses the question. Prioritize relevant Bible verses, and cite
-    Protestant theologians, compatible Catholic thinkers, or books when they genuinely help. Address likely
-    misconceptions and keep the answer under 240 words. Do not begin with a recap or generic preamble.
-    """
-    private var model: GenerativeModel {
-        FirebaseAI.firebaseAI(backend: .vertexAI(location: "global")).generativeModel(
-            modelName: "gemini-3.7-flash",
-            generationConfig: GenerationConfig(maxOutputTokens: 4_096),
-            systemInstruction: ModelContent(role: "system", parts: systemPrompt),
-            requestOptions: RequestOptions(timeout: 45)
-        )
-    }
 
     let defaultPrompt = """
     Respond from a Christian point of view without announcing a denomination. Directly answer the question,
@@ -108,10 +94,13 @@ final class ClaudeAPI {
                         onReceive(text)
                     }
                 } else {
-                    let requestModel = model
-                    let response = try await requestModel.generateContent(context)
+                    let callable = Functions.functions(region: "us-central1")
+                        .httpsCallable("generateApologistAnswer")
+                    let response = try await callable.call(["prompt": context])
                     try Task.checkCancellation()
-                    if let text = response.text, !text.isEmpty {
+                    if let data = response.data as? [String: Any],
+                       let text = data["text"] as? String,
+                       !text.isEmpty {
                         fullResponse += text
                         onReceive(text)
                     }
